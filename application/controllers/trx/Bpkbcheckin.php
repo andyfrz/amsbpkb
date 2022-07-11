@@ -124,11 +124,11 @@ class Bpkbcheckin extends MY_Controller
     }
 
 
-	public function ajx_add_save()
+	public function checkin_trx()
 	{
-		parent::ajx_add_save();
-		$this->load->model('trbpkbob_model');
-		$this->form_validation->set_rules($this->trbpkbob_model->getRules("ADD", ""));
+		//parent::checkin_trx();
+		$this->load->model('trbpkbcheckin_model');
+		$this->form_validation->set_rules($this->trbpkbcheckin_model->getRules("", ""));
 		$this->form_validation->set_error_delimiters('<div class="text-danger">* ', '</div>');
 
 		if ($this->form_validation->run() == FALSE) {
@@ -140,34 +140,58 @@ class Bpkbcheckin extends MY_Controller
 			return;
 		}
 
+		$this->load->model('trsalestrx_model');
+		$this->load->model('msbpkbwarehouse_model');
+		$datawarehouse = $this->msbpkbwarehouse_model->getMainWarehouse();
+		$warehouse = $datawarehouse["bpkbwarehouse"];
+		$finSalesTrxId = $this->input->post('finSalesTrxId');
+		$data = $this->trsalestrx_model->getDataById($finSalesTrxId);
+		$salestrx = $data["salestrx"];
+		if (!$salestrx) {
+			$this->ajxResp["status"] = "DATA_NOT_FOUND";
+			$this->ajxResp["message"] = "Sales Trx id $finSalesTrxId Not Found ";
+			$this->ajxResp["data"] = [];
+			$this->json_output();
+			return;
+		}
+
 		$data = [
 			"fstBpkbNo" => $this->input->post("fstBpkbNo"),
-			"fstBpkbStatus" => 'OB_CHECKIN',
+			"fstBpkbStatus" => 'CHECKIN',
+			"finSalesTrxId" => $finSalesTrxId,
 			"fdtBpkbDate"=>dBDateFormat($this->input->post("fdtBpkbDate")),
-			"fstDealerCode" => $this->input->post("fstDealerCode"),
-            "fstCustomerName" => $this->input->post("fstCustomerName"),
-			"fstNik" => $this->input->post("fstNik"),
-			"fstNpwp" => $this->input->post("fstNpwp"),
-            "fstBrandCode" => $this->input->post("fstBrandCode"),
-			"finBrandTypeId" => $this->input->post("finBrandTypeId"),
-			"fstColourCode" => $this->input->post("fstColourCode"),
-            "fstEngineNo" => $this->input->post("fstEngineNo"),
-			"fstChasisNo" => $this->input->post("fstChasisNo"),
-			"finManufacturedYear" => $this->input->post("finManufacturedYear"),
-            "finTrxId" => $this->input->post("finTrxId"),
-			"finWarehouseId" => $this->input->post("finWarehouseId"),
+			"fstDealerCode" => $salestrx->fstDealerCode,
+            "fstCustomerName" => $salestrx->fstCustomerName,
+			"fstNik" => $salestrx->fstNik,
+			"fstNpwp" => $salestrx->fstNpwp,
+            "fstBrandCode" => $salestrx->fstBrandCode,
+			"finBrandTypeId" => $salestrx->finBrandTypeId,
+			"fstColourCode" => $salestrx->fstColourCode,
+            "fstEngineNo" => $salestrx->fstEngineNo,
+			"fstChasisNo" => $salestrx->fstChasisNo,
+			"finManufacturedYear" => $salestrx->finManufacturedYear,
+			"finTrxId" => '4',
+			"finWarehouseId" => $warehouse->finWarehouseId,
 			"fstInfo" => $this->input->post("fstInfo"),
 			"fst_active" => 'A'
 		];
+		if ($salestrx->fstLeasingCode !='' || $salestrx->fstLeasingCode != null || $salestrx->fstLeasingCode !='FMF'){
+			$data["finTrxId"] = '4';
+		}else if ($salestrx->fstLeasingCode =='FMF'){
+			$data["finTrxId"] = '3';
+		}else if ($salestrx->fstLeasingCode =='' || $salestrx->fstLeasingCode == null){
+			$data["finTrxId"] = '1';
+		}
+
 		$this->db->trans_start();
-		$insertId = $this->trbpkbob_model->insert($data);
+		$insertId = $this->trbpkbcheckin_model->insert($data);
 		
 		$log = [
 			"fstBpkbNo" => $this->input->post("fstBpkbNo"),
-			"fstTrxSource" => 'OB_CHECKIN',
+			"fstTrxSource" => 'CHECKIN',
 			"fdtTrxDate"=> date("Y-m-d H:i:s"),
-            "finTrxId" => $this->input->post("finTrxId"),
-			"finWarehouseId" => $this->input->post("finWarehouseId"),
+            "finTrxId" => $finSalesTrxId,
+			"finWarehouseId" => $warehouse->finWarehouseId,
 			"fstTrxInfo" => $this->input->post("fstInfo"),
 			"fst_active" => 'A'
 		];
@@ -194,9 +218,9 @@ class Bpkbcheckin extends MY_Controller
 	public function ajx_edit_save()
 	{
 		parent::ajx_edit_save();
-		$this->load->model('trbpkbob_model');
+		$this->load->model('trbpkbcheckin_model');
 		$finId = $this->input->post('finId');
-		$data = $this->trbpkbob_model->getDataById($finId);
+		$data = $this->trbpkbcheckin_model->getDataById($finId);
 		$bpkb = $data["bpkb"];
 		if (!$bpkb) {
 			$this->ajxResp["status"] = "DATA_NOT_FOUND";
@@ -357,7 +381,7 @@ class Bpkbcheckin extends MY_Controller
 
         $customer_name = $this->input->post("fstCustomerName");
         $nik = $this->input->post("fstNik");
-        $bpkb_no = $this->input->post("fstBpkbNo");
+        $spk_no = $this->input->post("fstSPKNo");
         $brand_name = $this->input->post("fstBrandName");
         $engine_no = $this->input->post("fstEngineNo");
         $chasis_no = $this->input->post("fstChasisNo");
@@ -377,8 +401,8 @@ class Bpkbcheckin extends MY_Controller
         if ($nik != "") {
             $swhere .= " and a.fstNik = " . $this->db->escape($nik);
         }
-        if ($bpkb_no != "") {
-            $swhere .= " and a.fstBpkbNo = " . $this->db->escape($bpkb_no);
+        if ($spk_no != "") {
+            $swhere .= " and a.fstSPKNo = " . $this->db->escape($spk_no);
         }
         if ($brand_name != "") {
             $swhere .= " and b.fstBrandName = " . $this->db->escape($brand_name);

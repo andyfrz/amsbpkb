@@ -14,6 +14,8 @@ class Trsalestrx_model extends MY_MODEL {
     {
         $ssql = "SELECT * FROM " . $this->tableName . " WHERE finSalesTrxId = ?";
         $qr = $this->db->query($ssql, [$finSalesTrxId]);
+        //echo $this->db->last_query();
+        //die();
         $rwSalestrx = $qr->row();
 
         $data = [

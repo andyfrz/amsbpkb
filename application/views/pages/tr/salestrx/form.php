@@ -1,6 +1,7 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 ?>
+<script src="<?=base_url()?>bower_components/jquery/jquery.md5.js"></script>
 <section class="content-header">
     <h1><?= lang("Sales TRX") ?><small><?= lang("") ?></small></h1>
     <ol class="breadcrumb">
@@ -18,53 +19,56 @@ defined('BASEPATH') or exit('No direct script access allowed');
 		  <h3 class="box-title">Sales Data</h3>
 		</div>
 		<!-- /.box-header -->
-		<div class="box-body">
-            <div class="form-group">
-                <div class="col-sm-12">
-                <label class="radio"><input type="radio" id="import_excel" class="rpt_layout" name="rpt_layout" value="1" checked onclick="handleRadioClick(this);"><?=lang("Import sales data (Excel)")?></label>
-                <label class="radio"><input type="radio" id="import_api" class="rpt_layout" name="rpt_layout" value="2" onclick="handleRadioClick(this);"><?=lang("Import sales data (API)")?></label>								
-                    <!--<div class="radio">
-                    <label>
-                        <input type="radio" name="opsi_download" id="import_excel" value="1" checked="">
-                        Import sales data (Excel)
-                    </label>
+        <form id="frmDownload" class="form-horizontal" action="<?= site_url() ?>trx/salestrx/download_api" method="POST" enctype="multipart/form-data">
+            <div class="box-body">
+            <input type="hidden" name = "<?=$this->security->get_csrf_token_name()?>" value="<?=$this->security->get_csrf_hash()?>">
+                <div class="form-group">
+                    <div class="col-sm-12">
+                    <label class="radio"><input type="radio" id="import_excel" class="rpt_layout" name="rpt_layout" value="1" checked onclick="handleRadioClick(this);"><?=lang("Import sales data (Excel)")?></label>
+                    <label class="radio"><input type="radio" id="import_api" class="rpt_layout" name="rpt_layout" value="2" onclick="handleRadioClick(this);"><?=lang("Import sales data (API)")?></label>								
+                        <!--<div class="radio">
+                        <label>
+                            <input type="radio" name="opsi_download" id="import_excel" value="1" checked="">
+                            Import sales data (Excel)
+                        </label>
+                        </div>
+                        <div class="radio">
+                        <label>
+                            <input type="radio" name="opsi_download" id="import_api" value="2">
+                            Import sales data (API)
+                        </label>
+                        </div>-->
                     </div>
-                    <div class="radio">
-                    <label>
-                        <input type="radio" name="opsi_download" id="import_api" value="2">
-                        Import sales data (API)
-                    </label>
-                    </div>-->
                 </div>
+                <div id="salesdate" class="form-group row" style="display:none">
+                    <label for="fdtSalesDate" class="col-sm-2 control-label"><?=lang("Sales date :")?></label>
+                    <div class="col-sm-4">
+                        <div class="input-group">
+                            <div class="input-group-addon">
+                                <i class="fa fa-calendar"></i>
+                            </div>
+                            <input type="text" class="form-control datepicker" id="fdtSalesDate" name="fdtSalesDate"/>
+                        </div>
+                        <div id="fdtSalesDate_err" class="text-danger"></div>
+                        <!-- /.input group -->
+                    </div>
+                    <label for="fdtSalesDate2" class="col-sm-2 control-label"><?=lang("Sales date :")?></label>
+                    <div class="col-sm-4">
+                        <div class="input-group">
+                            <div class="input-group-addon">
+                                <i class="fa fa-calendar"></i>
+                            </div>
+                            <input type="text" class="form-control datepicker" id="fdtSalesDate2" name="fdtSalesDate2"/>
+                        </div>
+                        <div id="fdtSalesDate2_err" class="text-danger"></div>
+                        <!-- /.input group -->
+                    </div>
+                </div>
+                <button type="button"  id="btnImport" href="#" title="<?=lang("Import Excel")?>" class="btn btn-primary btn-block"><i class="fa fa-file-excel-o" aria-hidden="true"></i></button>
+                <button type="button"  id="btnLOG" href="#" title="<?=lang("Download")?>" class="btn btn-primary btn-block" hidden ><i class="fa fa-cloud-download" aria-hidden="true"></i></button>
             </div>
-			<div id="salesdate" class="form-group row" style="display:none">
-                <label for="fdtSalesDate" class="col-sm-2 control-label"><?=lang("Sales date :")?></label>
-				<div class="col-sm-4">
-					<div class="input-group">
-						<div class="input-group-addon">
-							<i class="fa fa-calendar"></i>
-						</div>
-						<input type="text" class="form-control datepicker" id="fdtSalesDate" name="fdtSalesDate"/>
-					</div>
-					<div id="fdtSalesDate_err" class="text-danger"></div>
-					<!-- /.input group -->
-				</div>
-				<label for="fdtSalesDate2" class="col-sm-2 control-label"><?=lang("Sales date :")?></label>
-				<div class="col-sm-4">
-					<div class="input-group">
-						<div class="input-group-addon">
-							<i class="fa fa-calendar"></i>
-						</div>
-						<input type="text" class="form-control datepicker" id="fdtSalesDate2" name="fdtSalesDate2"/>
-					</div>
-					<div id="fdtSalesDate2_err" class="text-danger"></div>
-					<!-- /.input group -->
-				</div>
-			</div>
-			<button type="button"  id="btnImport" href="#" title="<?=lang("Import Excel")?>" class="btn btn-primary btn-block"><i class="fa fa-file-excel-o" aria-hidden="true"></i></button>
-            <button type="button"  id="btnLOG" href="#" title="<?=lang("Download")?>" class="btn btn-primary btn-block" hidden ><i class="fa fa-cloud-download" aria-hidden="true"></i></button>
-		</div>
-		<!-- /.box-body -->
+            <!-- /.box-body -->
+        </form>
 	  </div>
 	  <!-- /.box -->
 	</div>
@@ -125,26 +129,16 @@ defined('BASEPATH') or exit('No direct script access allowed');
     $(function() {
 
         var refreshToken = "<?= $refreshToken ?>";
+        var $token = $.md5('221106T1853');
+        
+        var data = {
+            [SECURITY_NAME]:SECURITY_VALUE,
+            "fdtSalesDate": $("#fdtSalesDate").val(),
+            "fdtSalesDate2":$("#fdtSalesDate2").val(),
+        };
         $("#btnLOG").click(function(event){
             event.preventDefault();
-            $.ajax({
-                type: 'POST',
-                dataType: 'json',
-                contentType: 'application/json; charset=utf-8',
-                url: 'http://36.94.119.139:4000/user/authenticate',
-
-                data: JSON.stringify({
-                    'UserCode':'backup',
-                    'UserPassword':'bfdf97ae01c73d83a58ec41f78a4291f',
-                    'BranchCode':'SYM',
-                    'DealerCode':'SYSYM'
-                }),
-                success: function(resp) {
-                    console.log(resp);
-                    token = resp.RefreshToken;
-                    window.location.replace("<?=site_url()?>master/user/update_token/" + token);
-                }
-            });
+            insertData(data);
             /*$.ajax({
                 type: 'GET',
                 dataType: 'json',
@@ -185,6 +179,52 @@ defined('BASEPATH') or exit('No direct script access allowed');
 		    });*/
         });
 
+        function insertData(dealers){
+            var dataSubmit = $("#frmDownload").serializeArray();
+            var detail = new Array();
+            datas = dealers;
+            $.each(datas,function(i,v){
+                detail.push(v);
+            });
+
+            dataSubmit.push({
+                name:"detail",
+                value: JSON.stringify(detail)
+            });
+            url =  "<?= site_url() ?>trx/salestrx/download_salestrx/";
+
+		    App.blockUIOnAjaxRequest("<?=lang("Please wait while saving data.....")?>");
+            $.ajax({
+                type: "POST",
+                //enctype: 'multipart/form-data',
+                url: url,
+                data: dataSubmit,
+                timeout: 600000,
+                success: function (resp) {				
+                    if (resp.message != "")	{
+                        $.alert({
+                            title: 'Message',
+                            content: resp.message,
+                            buttons : {
+                                OK : function(){
+                                    if(resp.status == "SUCCESS"){
+                                        //$("#btnNew").trigger("click");
+                                        //return;
+                                    }
+                                },
+                            }
+                        });
+                    }
+                },
+                error: function (e) {
+                    $("#result").text(e.responseText);
+                    $("#btnSubmit").prop("disabled", false);
+                },
+            }).always(function(){
+                
+            });
+        }
+
         function getList(data,callbackFunc){
             App.getValueAjax({
                 type: 'GET',
@@ -220,8 +260,8 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
         $("#btnImport").click(function(event) {
             event.preventDefault();
-            $("#modal-import").modal('show');
-            /*$.ajax({
+            //$("#modal-import").modal('show');
+            $.ajax({
                 type: 'POST',
                 dataType: 'json',
                 contentType: 'application/json; charset=utf-8',
@@ -236,11 +276,12 @@ defined('BASEPATH') or exit('No direct script access allowed');
                 success: function(resp) {
                     console.log(resp);
                     token = resp.RefreshToken;
-                    window.location.replace("<?=site_url()?>master/user/update_token/" + token);
+                    //window.location.replace("<?=site_url()?>master/user/update_token/" + token);
                 }
-            });*/
+            });
         });
 
 
     });
 </script>
+<script src="<?=base_url()?>bower_components/jquery/jquery.md5.js"></script>

@@ -42,8 +42,13 @@ class Bpkbtrxs extends MY_Controller
 		];
 		$this->list['columns'] = [
             ['title' => 'ID', 'width' => '5%', 'data' => 'finTrxId'],
-			['title' => 'Trx Description', 'width' => '20%', 'data' => 'fstTrxDescription'],
-			['title' => 'System Trx', 'width' => '15%', 'data' => 'fblIsSystemTrx'],
+			['title' => 'Trx Description', 'width' => '25%', 'data' => 'fstTrxDescription'],
+			['title' => 'System Trx', 'width' => '10%', 'data' => 'fblIsSystemTrx','className'=>'text-center',
+				'render'=>"function(data,type,row){
+					var checked = data == 1 ? 'checked' : '';
+					return '<input type=\"checkbox\" ' + checked + ' disabled/>';
+				}",
+			],
             ['title' => 'Trx Type', 'width' => '10%', 'data' => 'fstTrxType'],
 			['title' => 'Action', 'width' => '10%', 'data' => 'action', 'sortable' => false, 'className' => 'dt-body-center text-center']
 		];

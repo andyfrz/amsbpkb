@@ -166,6 +166,8 @@ class Bpkbob extends MY_Controller
             "finTrxId" => $this->input->post("finTrxId"),
 			"finWarehouseId" => $this->input->post("finWarehouseId"),
 			"fstTrxInfo" => $this->input->post("fstInfo"),
+			"fdbIn"=>1,
+			"fdbOut"=>0,
 			"fst_active" => 'A'
 		];
 		$this->trlog_bpkb_model->insert($log);
@@ -245,6 +247,8 @@ class Bpkbob extends MY_Controller
             "finTrxId" => $this->input->post("finTrxId"),
 			"finWarehouseId" => $this->input->post("finWarehouseId"),
 			"fstTrxInfo" => $this->input->post("fstInfo"),
+			"fdbIn"=>1,
+			"fdbOut"=>0,
 			"fst_active" => 'A'
 		];
 		$this->trlog_bpkb_model->insert($log);

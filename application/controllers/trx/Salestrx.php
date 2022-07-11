@@ -497,89 +497,230 @@ class salestrx extends MY_Controller
 		return $config;
 	}
 
-    function download_api($dataApi){
-        // array Count
-        $arrayCount = count($dataApi);
-        $flag = 1;
-        if (empty($dataApi)) {
-            $flag = 1;
-        }
-        // match excel sheet column
-        if ($flag == 1) {
-            foreach($dataApi as $x => $row) {
+    function download_salestrx(){
+		$startDateString = date("Ymd", strtotime($this->input->post("fdtSalesDate")));
+		$endDateString = date("Ymd", strtotime($this->input->post("fdtSalesDate2")));
+		$date = date("ydm");
+		$time = date("Hi");
+		$token = md5($date.'T'.$time);
+		$data = array(
+			'startDateString' => $startDateString,
+			'endDateString' => $endDateString,
+			'token' => $token ,
+			'request_time' => $time
+		);
+		
+		$endpoint = "http://36.94.119.139:5100/api/bpkb/getAccountDataList";
+		$url = $endpoint . '?' . http_build_query($data);
 
-                if ($x == 0) {
-                    continue;
-                }
-                $dealer = $row->DealerCode;
+		
+		$curl = curl_init($url);
+		curl_setopt($curl, CURLOPT_URL, $url);
+		curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+		
+		//for debug only!
+		curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+		
+		$resp = curl_exec($curl);
+		curl_close($curl);
 
-                $regist = $row->SalesOrderNo;
+        $this->load->model('trsalestrx_model');;
+		//$data = file_get_contents($resp);
+		$this->db->trans_start();
+		$details = json_decode($resp, true);
+		foreach ($details as $detail=>$salestrx) {
+			$info = '';
+			if($this->trsalestrx_model->is_present_sales($salestrx['SalesOrderNo'])){
+				$info ="SPK No already exists!";
+				$fetchData[] = array('SPK No' => $salestrx['SalesOrderNo'], 'Sales Date' => $salestrx['AccountDate'], 'Customer' => $salestrx['CustName'], 'info' => $info);
+			}else{
+				$data = [
+					'fstDealerCode' => $salestrx['DealerCode'],
+					'fdtSalesDate' => $salestrx['AccountDate'], 
+					'fstSPKNo' => $salestrx['SalesOrderNo'],
+					'fstCustomerName' => $salestrx['CustName'],
+					'fstNik' => $salestrx['IDNo'],
+					'fstNpwp' => $salestrx['IDNo'],
+					'fstPaymentCode' => '-',
+					'fstLeasingCode' => '-',
+					'fmnNumOfInstallment' => $salestrx['NumOfInstallment'],
+					'fstBrandCode' => $salestrx['BranchCode'],
+					'finBrandTypeId' => $salestrx['TMTypeCode'],
+					'fstColourCode' => $salestrx['ColourCode'],
+					'fstEngineNo' => $salestrx['EngineNo'],
+					'fstChasisNo' => $salestrx['ChassisNo'],   
+					'finManufacturedYear' => $salestrx['Year'],
+					'fstSalesName' => '-',
+					'fstSurveyorName' => $salestrx['SurveyorName'],
+					'fdcOffRoadPrice' => $salestrx['Price'],
+					'fdcBbn' => '0',
+					'fdcCommission' =>'0',
+					'fdcPriceList' => $salestrx['Price'],
+					'fdcDownpayment' => $salestrx['DownPayment'],
+					'fdcDiscount' => '0',
+					'fdcPromotion' => '0',
+					'fin_insert_id' => $this->aauth->get_user_id(),
+					'fst_active' =>'A'
+				];
+				$this->trsalestrx_model->insert($data);
+			}
+			
+			$dbError  = $this->db->error();
+			if ($dbError["code"] != 0) {
+				$this->ajxResp["status"] = "DB_FAILED";
+				$this->ajxResp["message"] = "Insert Detail Failed";
+				$this->ajxResp["data"] = $this->db->error();
+				$this->json_output();
+				$this->db->trans_rollback();
+				return;
+			}
 
-
-                /*  
-                $no = filter_var(trim($no), FILTER_SANITIZE_STRING);
-                $dealer = filter_var(trim($dealer), FILTER_SANITIZE_STRING);
-                $chl = filter_var(trim($chl), FILTER_SANITIZE_STRING);
-                $date = filter_var(trim($date), FILTER_SANITIZE_STRING);
-                $regist = filter_var(trim($regist), FILTER_SANITIZE_STRING);
-                $customer = filter_var(trim($customer), FILTER_SANITIZE_STRING);
-                //$nik = filter_var(trim($nik), FILTER_SANITIZE_STRING);
-                $date = strtotime($date);
-                $date = date('Y-m-d',$date);
-                $npwp = filter_var(trim($npwp), FILTER_SANITIZE_STRING);
-                $bayar = filter_var(trim($bayar), FILTER_SANITIZE_STRING);
-                $leasing = filter_var(trim($leasing), FILTER_SANITIZE_STRING);
-                $top = filter_var(trim($top), FILTER_SANITIZE_STRING);
-                $channel = filter_var(trim($channel), FILTER_SANITIZE_STRING);
-                $merk = filter_var(trim($merk), FILTER_SANITIZE_STRING);
-                $type = filter_var(trim($type), FILTER_SANITIZE_STRING);
-                $warna = filter_var(trim($warna), FILTER_SANITIZE_STRING);
-                $engineNo = filter_var(trim($engineNo), FILTER_SANITIZE_STRING);
-                $chasisNo = filter_var(trim($chasisNo), FILTER_SANITIZE_STRING);
-                $sales = filter_var(trim($sales), FILTER_SANITIZE_STRING);
-                $surveyor = filter_var(trim($surveyor), FILTER_SANITIZE_STRING);
-                $offroadPrice = filter_var(trim($offroadPrice), FILTER_SANITIZE_STRING);
-                $bbn = filter_var(trim($bbn), FILTER_SANITIZE_STRING);
-                $komisi = filter_var(trim($komisi), FILTER_SANITIZE_STRING);
-                $priceList = filter_var(trim($priceList), FILTER_SANITIZE_STRING);
-                $dp = filter_var(trim($dp), FILTER_SANITIZE_STRING);
-                $totalDisc = filter_var(trim($totalDisc), FILTER_SANITIZE_STRING);
-                $promotion = filter_var(trim($promotion), FILTER_SANITIZE_STRING);
-                */
-
-                //cek dulu sudah ada atau belum berdasarkan Nomor SPK/REGIST
-                if($this->trsalestrx_model->is_present_sales($regist)){
-                    //sudah ada
-                    $info ="Nomor SPK/REGIST Sudah Ada!";
-                }else{
-                    $query=$this->trsalestrx_model->add_new('trsalestrx',
-                        array('fstDealerCode' => $dealer,
-                        'fstSPKNo' => $regist, 
-                        'fdt_insert_datetime' => date("Y-m-d H:i:s"), 
-                        'fin_insert_id' => $this->aauth->get_user_id(),
-                        'fst_active' =>'A'
-                        ));
-                    if($query){
-                        $info ="Tersimpan";
-                    }					
-                }						
-                
-                $fetchData[] = array('info' => $info);
-            }
-            $this->vars['type']="alert-success";
-            $this->vars['message']="Import Finish";
-            $this->vars['dataInfo'] = $fetchData;
-        } else {
-            $this->vars['type']="alert-danger";
-            $this->vars['message']="Please import correct file, did not match excel sheet column";					
-        }
-        //$this->lizt();
-        //$this->vars['title']="Data dosen";
-        //$this->vars['display_kampus']=$this->vars['dosen']=TRUE;
-        //$this->vars['data']=$this->m_dosen->get_dosen();
-        //$this->vars['content']='input/dosen';
-        //$this->load->view('backend/index',$this->vars);
+		}
+		$this->db->trans_complete();
+		$this->ajxResp["status"] = "SUCCESS";
+		if($info){
+			$this->ajxResp["message"] = $fetchData;
+		}else{
+			$this->ajxResp["message"] = "Insert Success";
+		}
+		
+		$this->ajxResp["data"]["insert_id"] = 'admin';
+		$this->json_output();
         redirect('trx/salestrx');	
-	}	
+	}
+	
+	function download_colours(){
+		$date = date("ydm");
+		$time = date("Hi");
+		$token = md5($date.'T'.$time);
+		/*$data = array(
+			'startDateString' => '20220601',
+			'endDateString' => '20220610',
+			'token' => $token ,
+			'request_time' => $time
+		);*/
+		$data = array(
+			'token' => $token ,
+			'request_time' => $time
+		);
+		
+		$endpoint = "http://36.94.119.139:5100/api/bpkb/getColourDataList";
+		
+		//$endpoint = "http://36.94.119.139:5100/api/bpkb/getAccountDataList";
+		$url = $endpoint . '?' . http_build_query($data);
+		
+		$curl = curl_init($url);
+		curl_setopt($curl, CURLOPT_URL, $url);
+		curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+		
+		//for debug only!
+		curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+		
+		$resp = curl_exec($curl);
+		curl_close($curl);
+
+        $this->load->model('Mscolours_model');;
+		//$data = file_get_contents($resp);
+		$this->db->trans_start();
+		$details = json_decode($resp, true);
+		foreach ($details as $detail=>$item) {
+			//$fstColourCode = $this->Mscolours_model->getDataById($item['ColourCode']);
+			//if( $item['ColourCode'] == $fstColourCode ){
+				$data = [
+					"fstColourCode" => $item['ColourCode'],
+					"fstColourName" => $item['ColourName'],
+					"fst_active" =>'A'
+				];
+			//};
+			
+			$this->Mscolours_model->insert($data);
+			$dbError  = $this->db->error();
+			if ($dbError["code"] != 0) {
+				$this->ajxResp["status"] = "DB_FAILED";
+				$this->ajxResp["message"] = "Insert Detail Failed";
+				$this->ajxResp["data"] = $this->db->error();
+				$this->json_output();
+				$this->db->trans_rollback();
+				return;
+			}
+		}
+		$this->db->trans_complete();
+		$this->ajxResp["status"] = "SUCCESS";
+		$this->ajxResp["message"] = $details;
+		$this->ajxResp["data"]["insert_id"] = 'admin';
+		$this->json_output();
+        //redirect('trx/salestrx');	
+	}
+
+	function download_dealers(){
+		$date = date("ydm");
+		$time = date("Hi");
+		$token = md5($date.'T'.$time);
+		/*$data = array(
+			'startDateString' => '20220601',
+			'endDateString' => '20220610',
+			'token' => $token ,
+			'request_time' => $time
+		);*/
+		$data = array(
+			'token' => $token ,
+			'request_time' => $time
+		);
+		
+		$endpoint = "http://36.94.119.139:5100/api/bpkb/getDealerDatalist";
+		
+		//$endpoint = "http://36.94.119.139:5100/api/bpkb/getAccountDataList";
+		$url = $endpoint . '?' . http_build_query($data);
+		
+		$curl = curl_init($url);
+		curl_setopt($curl, CURLOPT_URL, $url);
+		curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+		
+		//for debug only!
+		curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+		
+		$resp = curl_exec($curl);
+		curl_close($curl);
+
+        $this->load->model('Msdealers_model');;
+		//$data = file_get_contents($resp);
+		$this->db->trans_start();
+		$details = json_decode($resp, true);
+		foreach ($details as $detail=>$item) {
+			//$fstColourCode = $this->Mscolours_model->getDataById($item['ColourCode']);
+			//if( $item['ColourCode'] == $fstColourCode ){
+				$data = [
+					"fstDealerCode" => $item['DealerCode'],
+					"fstDealerName" => $item['DealerName'],
+					"fstPersonInCharge" => $item['PICGeneral'],
+					"fstPhoneNo" => $item['Phone1'],
+					"fstAddress" => $item['Address1'],
+					"fstEmail" => $item['Email'],
+					"fst_active" =>'A'
+				];
+			//};
+			
+			$this->Msdealers_model->insert($data);
+			$dbError  = $this->db->error();
+			if ($dbError["code"] != 0) {
+				$this->ajxResp["status"] = "DB_FAILED";
+				$this->ajxResp["message"] = "Insert Detail Failed";
+				$this->ajxResp["data"] = $this->db->error();
+				$this->json_output();
+				$this->db->trans_rollback();
+				return;
+			}
+		}
+		$this->db->trans_complete();
+		$this->ajxResp["status"] = "SUCCESS";
+		$this->ajxResp["message"] = $details;
+		$this->ajxResp["data"]["insert_id"] = 'admin';
+		$this->json_output();
+        //redirect('trx/salestrx');	
+	}
+
 
 }

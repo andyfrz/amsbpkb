@@ -111,6 +111,46 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 			</div>
 		</div>
 	</div>
+	<script type="text/javascript">
+		var selected_items;
+
+		var mdlBpkb = {
+			show:function(data){
+				mdlBpkb.clear();
+				console.log(data);
+
+
+				if (typeof(data) == "undefined"){
+					$("#MdlBpkb").modal("show");					
+					return;
+				}								
+				$("#MdlBpkb").modal({
+					backdrop:"static",
+				});
+				
+
+			},
+			hide:function(){
+				$("#MdlCheckin").modal("hide");
+			},
+			clear:function(){
+				
+				$("#fstCustomerName").val("");
+				$("#fstNik").val("");
+				$("#fstSPKNo").val("");
+				$("#fstBrandName").val("");
+				$("#fstEngineNo").val("");
+				$("#fstChasisNo").val("");
+				t = $("#dtblSalesTrx").DataTable();
+				t.clear().draw();
+			},
+			checkin:function(){
+				//selectedDetail								
+				mdlBpkb.clear();
+			}			
+		};
+
+	</script>
 </div>
 
 <?php echo $mdlPrint ?>
@@ -181,7 +221,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 [SECURITY_NAME]:SECURITY_VALUE,
                 "fstCustomerName": $("#fstCustomerName").val(),
                 "fstNik":$("#fstNik").val(),
-                "fstBpkbNo":$("#fstBpkbNo").val(),
+                "fstSPKNo":$("#fstSPKNo").val(),
                 "fstBrandName":$("#fstBrandName").val(),
                 "fstEngineNo":$("#fstEngineNo").val(),
                 "fstChasisNo":$("#fstChasisNo").val(),
@@ -235,7 +275,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 				if (resp.status == "NOT READY"){
 					//t.row(trRow).remove().draw(false); //refresh ajax
 					//trRow.remove(); //no refresh ajax
-                    $("#MdlCheckin").modal("show");
+                    //$("#MdlCheckin").modal("show");
+					mdlCheckin.show(id);
 				}
 			}
 		})
@@ -251,13 +292,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
 				<h4 class="modal-title"><?= lang("BPKB Checkin") ?></h4>
 			</div>
-			<div class="modal-body">
-                <input type="hidden" name = "<?=$this->security->get_csrf_token_name()?>" value="<?=$this->security->get_csrf_hash()?>">				
+			<div class="modal-body">		
 				<form class="form-horizontal">
+					<input type="hidden" name = "<?=$this->security->get_csrf_token_name()?>" value="<?=$this->security->get_csrf_hash()?>">
+					<input type='hidden' id='finSalesTrxId'/>
 					<div class='form-group'>
                     	<label for="cfstBpkbNo" class="col-sm-2 control-label">BPKB No.</label>
 						<div class="col-sm-4">
 							<input type="text" id="cfstBpkbNo" class="form-control"></input>
+							<div id="cfstBpkbNo_err" class="text-danger"></div>
 						</div>
                         <label for="cfdtBpkbDate" class="col-md-2 control-label"><?= lang("BPKB Date") ?></label>
                         <div class="col-sm-4">
@@ -272,19 +315,110 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         </div>
 					</div>
                     <div class='form-group'>
-                    	<label for="cfstBrandName" class="col-sm-2 control-label">Info</label>
+                    	<label for="cfstInfo"" class="col-sm-2 control-label">Info</label>
 						<div class="col-sm-7">
-							<input type="text" id="cfstBrandName" class="form-control"></input>
-						</div>
-                        <div class="col-sm-3 text-right">
-							<a id="btnCheckin" href="#" class="btn btn-primary">Checkin</a>
+							<input type="text" id="cfstInfo" class="form-control"></input>
 						</div>
 					</div>					
 				</form>
+				<div class="modal-footer">
+					<button id="btnCheckin" type="button" class="btn btn-primary btn-sm text-center" style="width:15%"><?=lang("Checkin")?></button>
+					<button type="button" class="btn btn-default btn-sm text-center" style="width:15%" data-dismiss="modal"><?=lang("Close")?></button>
+				</div>
                 
 			</div>
 		</div>
 	</div>
+	<script type="text/javascript">
+		var selected_items;
+
+		var mdlCheckin = {
+			show:function(id){
+				mdlCheckin.clear();
+				console.log(id);
+				//alert(id);
+
+				if (typeof(id) == "undefined"){
+					$("#MdlCheckin").modal("show");				
+					return;
+				}
+				$("#finSalesTrxId").val(id);
+				$("#cfstBpkbNo").val("");			
+				$("#cfdtBpkbDate").val("");
+				$('#cfstInfo').val("");								
+				$("#MdlCheckin").modal({
+					backdrop:"static",
+				});
+				
+
+			},
+			hide:function(){
+				$("#MdlCheckin").modal("hide");
+			},
+			clear:function(){
+				$("#finSalesTrxId").val(0);
+				$("#cfstBpkbNo").val("");
+				$("#cfdtBpkbDate").val("");
+				$("#cfstInfo").val("");
+			},
+			checkin:function(){								
+				mdlCheckin.clear();
+			}			
+		};
+
+		$(function(){
+			$("#btnCheckin").click(function(event){
+				event.preventDefault();
+				var dataPost = {
+					[SECURITY_NAME]:SECURITY_VALUE,
+					"finSalesTrxId": $("#finSalesTrxId").val(),
+					"fstBpkbNo":$("#cfstBpkbNo").val(),
+					"fdtBpkbDate":$("#cfdtBpkbDate").val(),
+					"fstInfo":$("#cfstInfo").val(),
+				};
+				$.ajax({			
+					url:"<?=$checkin_ajax_url?>",
+					method:"POST",
+					data:dataPost,
+					success:function(resp){
+						if (resp.message != "")	{
+							$.alert({
+								title: 'Message',
+								content: resp.message,
+								buttons : {
+									OK : function(){
+										if(resp.status == "SUCCESS"){
+											mdlCheckin.clear();
+											return;
+										}
+									},
+								}
+							});
+						}
+						if(resp.status == "VALIDATION_FORM_FAILED" ){
+							//Show Error
+							errors = resp.data;
+							for (key in errors) {
+								$("#"+key+"_err").html(errors[key]);
+							}
+						}else if(resp.status == "SUCCESS") {
+							data = resp.data;
+							$("#finSalesTrxId").val(data.insert_id);
+							//Clear all previous error
+							$(".text-danger").html("");					
+						}
+					},
+					error: function (e) {
+						$("#result").text(e.responseText);
+						$("#btnSubmit").prop("disabled", false);
+					},
+				}).always(function(){	
+
+				});				
+			});
+		});
+
+	</script>
 </div>
 
 <script type="text/javascript">
@@ -293,11 +427,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 	var needConfirmDelete = false;
 
 	$(function(){	
-		
-		/*if ($('#mdlSalesTrx').length > 0){
-			needConfirmDelete = true;
-		}*/
-        
 
 		$('#dtblList').on('preXhr.dt', function ( e, settings, data ) {
 		 	//add aditional data post on ajax call
@@ -360,15 +489,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 			trRow = $(this).parents('tr');				
 			data = t.row(trRow).data();
 			id = data.<?=$pKey?>;
-			
 			//
-
 			deleteAjax(id,false);			
 		});
 
         $("#btnNew").click(function(e){
 			e.preventDefault();
-            $("#MdlBpkb").modal("show");
+			mdlBpkb.show();
 			return;
 		});
 

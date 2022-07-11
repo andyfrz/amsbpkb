@@ -79,10 +79,14 @@ class Msdealers_model extends MY_Model
 
     public function getAllList()
     {
-        $ssql = "select fstDealerCode,fstDealerName from " . $this->tableName . " ";
+        $ssql = "select fstDealerCode,fstDealerName from " . $this->tableName . " order by fstDealerName";
         $qr = $this->db->query($ssql, []);
         $rs = $qr->result();
         return $rs;
     }
+
+    public function add_new($table,$data){
+		return $this->db->insert($table,$data);
+	}
 
 }

@@ -33,4 +33,10 @@ class Trlog_bpkb_model extends MY_MODEL {
         $this->db->insert('trlog_user_model', $data);
         $log_id = $this->db->insert_id();*/  
     }
+
+    public function deleteByBpkb($fstBpkbNo)
+    {
+        $ssql = "DELETE FROM " . $this->tableName . " WHERE fstBpkbNo = ? AND (fstTrxSource ='M_OUT' OR fstTrxSource ='REQ' OR fstTrxSource ='REQ_LEASING' OR fstTrxSource ='REQ_TARIKAN'";
+		$this->db->query($ssql,[$fstBpkbNo]);
+    }
 }

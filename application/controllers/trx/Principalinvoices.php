@@ -298,12 +298,6 @@ class Principalinvoices extends MY_Controller
 	}
 
     public function ajxSalesTrxData(){
-		/*$fstCustomerName = $this->input->post("fstCustomerName");
-		$fstNik = $this->input->post("fstNik");
-        "fstSPKNo":$("#fstSPKNo").val(),
-        "fstBrandName":$("#fstBrandName").val(),
-        "fstEngineNo":$("#fstEngineNo").val(),
-        "fstChasisNo":$("#fstChasisNo").val(),*/
 
         $customer_name = $this->input->post("fstCustomerName");
         $nik = $this->input->post("fstNik");

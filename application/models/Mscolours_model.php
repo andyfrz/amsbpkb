@@ -21,23 +21,7 @@ class Mscolours_model extends MY_Model
         return $data;
     }
 
-    
-    public function getBranchById($fstColourCode){
-        $ssql = "select * from " . $this->tableName . " where fstColourCode = ?";
-        $qr = $this->db->query($ssql,[$fstColourCode]);
-        $row = $qr->row();
-        return $row;
-    }
 
-    public function getBranchReport($fstColourCode){
-        $ssql = "select * from " . $this->tableName . " where fstColourCode = ?";
-        $qr = $this->db->query($ssql,[$fstColourCode]);
-        $row = $qr->row();
-        $data = [
-            "branch" => $row
-        ];
-        return $data;
-    }
 
     public function getRules($mode = "ADD", $id = 0)
     {

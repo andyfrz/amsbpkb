@@ -62,5 +62,17 @@ class Msbpkbwarehouse_model extends MY_Model
 		return $rs;
 	}
 
+	public function getMainWarehouse()
+	{
+		$ssql = "select finWarehouseId,fstWarehouseName from " . $this->tableName . " where fblisMainWarehouse = true";
+		$qr = $this->db->query($ssql, []);
+		$rw = $qr->row();
+		$data = [
+			"bpkbwarehouse" => $rw
+		];
+
+		return $data;
+	}
+
 	
 }

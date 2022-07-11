@@ -38,6 +38,54 @@ class Trbpkbcheckin_model extends MY_MODEL {
         return $data;
     }
 
+    public function getRules($mode = "ADD", $finTrxId = 0)
+    {
+        $rules = [];
+
+        $rules[] = [
+            'field' => 'finSalesTrxId',
+            'label' => 'Trx Id',
+            'rules' => 'required',
+            'errors' => array(
+                'required' => '%s tidak boleh kosong'
+            )
+        ];
+
+
+        $rules[] = [
+            'field' => 'fstBpkbNo',
+            'label' => 'BPKB No',
+            'rules' => 'required',
+            'errors' => array(
+                'required' => '%s tidak boleh kosong'
+            )
+        ];
+
+        $rules[] = [
+            'field' => 'fdtBpkbDate',
+            'label' => 'BPKB Date',
+            'rules' => 'required',
+            'errors' => array(
+                'required' => '%s tidak boleh kosong'
+            )
+        ];
+
+        //if($mode == "ADD"){
+            $rules[] = [
+                'field' => 'fstBpkbNo',
+                'label' => 'BPKB No',
+                'rules' => 'is_unique[trbpkb.fstBpkbNo]',
+                'errors' => array(
+                    'is_unique' => 'This %s already exists'
+                )
+            ];
+    
+        //}
+
+
+        return $rules;
+    }
+
     
     public function add_new($table,$data){
 		return $this->db->insert($table,$data);
