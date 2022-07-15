@@ -423,20 +423,33 @@ class Bpkbrequest extends MY_Controller
         $fstDealerCode = $this->input->post("fstDealerCode");
         $fstBpkbNo = $this->input->post("fstBpkbNo");
 
-        $this->load->model('Trbpkbrequest_model');
-		$data = $this->Trbpkbrequest_model->cekDealer($fstBpkbNo,$fstDealerCode);
-		$dealer = $data["dealerbpkb"];
-		if (!$dealer) {
+        $ssql = "SELECT * FROM trbpkb WHERE fstBpkbNo = ? ";
+        $qr = $this->db->query($ssql, [$fstBpkbNo]);
+        //echo $this->db->last_query();
+        //die();
+        $rwBpkb = $qr->row();
+        if ($rwBpkb->fstBpkbStatus =='CHECKIN' OR $rwBpkb->fstBpkbStatus =='OB_CHECKIN'){
+            $this->load->model('Trbpkbrequest_model');
+            $data = $this->Trbpkbrequest_model->cekDealer($fstBpkbNo,$fstDealerCode);
+            $dealer = $data["dealerbpkb"];
+            if (!$dealer) {
+                $this->ajxResp["status"] = "NOT VALID";
+                $this->ajxResp["message"] = "Dealer tidak sesuai !!!";
+                $this->ajxResp["data"] = [];
+                $this->json_output();
+                return;
+            }else{
+                $this->ajxResp["status"] = "VALID";
+                $this->ajxResp["message"] = "";
+                $this->ajxResp["data"] = [];
+                $this->json_output();
+            }
+        }else{
             $this->ajxResp["status"] = "NOT VALID";
-            $this->ajxResp["message"] = "Dealer tidak sesuai !!!";
+            $this->ajxResp["message"] = "Status BPKB => $rwBpkb->fstBpkbStatus ,tidak bisa ditambahkan!!!";
             $this->ajxResp["data"] = [];
             $this->json_output();
             return;
-		}else{
-            $this->ajxResp["status"] = "VALID";
-            $this->ajxResp["message"] = "";
-            $this->ajxResp["data"] = [];
-            $this->json_output();
         }
 
 	}

@@ -111,6 +111,46 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 			</div>
 		</div>
 	</div>
+	<script type="text/javascript">
+		var selected_items;
+
+		var mdlInvoice = {
+			show:function(data){
+				mdlInvoice.clear();
+				console.log(data);
+
+
+				if (typeof(data) == "undefined"){
+					$("#MdlPrincipalInvoice").modal("show");					
+					return;
+				}								
+				$("#MdlPrincipalInvoice").modal({
+					backdrop:"static",
+				});
+				
+
+			},
+			hide:function(){
+				$("#MdlPrincipalInvoice").modal("hide");
+			},
+			clear:function(){
+				
+				$("#fstCustomerName").val("");
+				$("#fstNik").val("");
+				$("#fstSPKNo").val("");
+				$("#fstBrandName").val("");
+				$("#fstEngineNo").val("");
+				$("#fstChasisNo").val("");
+				t = $("#tblSalesTrx").DataTable();
+				t.clear().draw();
+			},
+			checkin:function(){
+				//selectedDetail								
+				mdlBpkb.clear();
+			}			
+		};
+
+	</script>
 </div>
 
 <script type="text/javascript">
@@ -314,9 +354,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 			deleteAjax(id,false);			
 		});
 
-        $("#btnNew").click(function(e){
+		$("#btnNew").click(function(e){
 			e.preventDefault();
-            $("#MdlPrincipalInvoice").modal("show");
+			mdlInvoice.show();
 			return;
 		});
 

@@ -183,7 +183,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
                         // Change to Edit mode
                         $("#frm-mode").val("EDIT"); //ADD|EDIT
-                        $('#fstDealerName').prop('readonly', true);
+                        $('#fstDealerCode').prop('readonly', true);
 
                     }
                 },
@@ -230,13 +230,12 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 				if(resp.status == "SUCCESS") {
 					data = resp.data;
-					$("#fstDealerCode").val(data.insert_id);
 
 					//Clear all previous error
 					$(".text-danger").html("");
 					// Change to Edit mode
 					$("#frm-mode").val("EDIT");  //ADD|EDIT
-					$('#fstDealerName').prop('readonly', true);
+					$('#fstDealerCode').prop('readonly', true);
 				}
 			});
 		});
@@ -273,11 +272,13 @@ defined('BASEPATH') or exit('No direct script access allowed');
                 });
             },
 
+
             error: function(e) {
                 $("#result").text(e.responseText);
                 console.log("ERROR : ", e);
             }
         });
+        $('#fstDealerCode').prop('readonly', true);
     }
 </script>
 

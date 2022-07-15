@@ -59,7 +59,7 @@ class Colours extends MY_Controller
 		$this->parser->parse('template/main', $this->data);
 	}
 
-	private function openForm($mode = "ADD", $fstColourCode = 0)
+	private function openForm($mode = "ADD", $fstColourCode = "")
 	{
 		$this->load->library("menus");
 
@@ -89,7 +89,7 @@ class Colours extends MY_Controller
 	public function add()
 	{
 		parent::add();
-		$this->openForm("ADD", 0);
+		$this->openForm("ADD", "");
 	}
 
 	public function edit($fstColourCode)
@@ -103,7 +103,7 @@ class Colours extends MY_Controller
 		parent::ajx_add_save();
 		$this->load->model('mscolours_model');
 		
-		$this->form_validation->set_rules($this->mscolours_model->getRules("ADD", 0));
+		$this->form_validation->set_rules($this->mscolours_model->getRules("ADD", ""));
 		$this->form_validation->set_error_delimiters('<div class="text-danger">* ', '</div>');
 
 		if ($this->form_validation->run() == FALSE) {

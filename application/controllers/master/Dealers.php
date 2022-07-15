@@ -61,7 +61,7 @@ class Dealers extends MY_Controller
 		$this->parser->parse('template/main', $this->data);
 	}
 
-	private function openForm($mode = "ADD", $fstDealerCode = 0)
+	private function openForm($mode = "ADD", $fstDealerCode = "")
 	{
 		$this->load->library("menus");
 
@@ -91,7 +91,7 @@ class Dealers extends MY_Controller
 	public function add()
 	{
 		parent::add();
-		$this->openForm("ADD", 0);
+		$this->openForm("ADD", "");
 	}
 
 	public function edit($fstDealerCode)
@@ -105,7 +105,7 @@ class Dealers extends MY_Controller
 		parent::ajx_add_save();
 		$this->load->model('msdealers_model');
 		
-		$this->form_validation->set_rules($this->msdealers_model->getRules("ADD", 0));
+		$this->form_validation->set_rules($this->msdealers_model->getRules("ADD", ""));
 		$this->form_validation->set_error_delimiters('<div class="text-danger">* ', '</div>');
 
 		if ($this->form_validation->run() == FALSE) {

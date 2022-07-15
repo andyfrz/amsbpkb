@@ -39,19 +39,31 @@ class Msbrands_model extends MY_Model
         return $data;
     }
 
-    public function getRules($mode = "ADD", $id = 0)
+    public function getRules($mode = "ADD", $id = "")
     {
+        $fstBrandCode = $this->input->post("fstBrandCode");
+        $fstGenesysBrandCode = $this->input->post("fstGenesysBrandCode");
         $rules = [];
 
-        $rules[] = [
-            'field' => 'fstBrandCode',
-            'label' => 'Branch Code',
-            'rules' => 'required',
-            'errors' => array(
-                'required' => '%s tidak boleh kosong'
-            )
-        ];
-
+        if ($fstBrandCode != "" && $mode =="ADD"){
+            $rules[] = [
+                'field' => 'fstBrandCode',
+                'label' => 'Branch Code',
+                'rules' => 'is_unique[tbbrands.fstBrandCode]',
+                'errors' => array(
+                    'is_unique' => 'This %s already exists'
+                )
+            ];
+        }else{
+            $rules[] = [
+                'field' => 'fstBrandCode',
+                'label' => 'Branch Code',
+                'rules' => 'required',
+                'errors' => array(
+                    'required' => '%s tidak boleh kosong'
+                )
+            ];
+        }
 
         $rules[] = [
             'field' => 'fstBrandName',
@@ -62,7 +74,7 @@ class Msbrands_model extends MY_Model
             )
         ];
 
-        if($mode == "ADD"){
+        if ($fstGenesysBrandCode != "" && $mode =="ADD"){
             $rules[] = [
                 'field' => 'fstGenesysBrandCode',
                 'label' => 'Genesys Code',
@@ -71,7 +83,15 @@ class Msbrands_model extends MY_Model
                     'is_unique' => 'This %s already exists'
                 )
             ];
-    
+        }else{
+            $rules[] = [
+                'field' => 'fstGenesysBrandCode',
+                'label' => 'Genesys Code',
+                'rules' => 'required',
+                'errors' => array(
+                    'required' => '%s tidak boleh kosong'
+                )
+            ];
         }
 
 

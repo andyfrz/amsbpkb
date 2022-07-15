@@ -10,6 +10,7 @@ class Bpkbtrxs extends MY_Controller
 		parent::__construct();
 		$this->load->library('form_validation');
 		$this->load->model('msbpkbtrxs_model');
+		$this->load->model('msbpkbtrxs_detail_model');
 	}
 
 	public function index()
@@ -292,14 +293,17 @@ class Bpkbtrxs extends MY_Controller
 
 	public function delete($finTrxId){
 		parent::delete($finTrxId);
+
 		$this->db->trans_start();
 		$this->msbpkbtrxs_model->delete($finTrxId);
+		$this->msbpkbtrxs_detail_model->deleteByHeaderId($finTrxId);
 		$this->db->trans_complete();
 
 		$this->ajxResp["status"] = "SUCCESS";
 		$this->ajxResp["message"] = lang("Data dihapus !");
 		//$this->ajxResp["data"]["insert_id"] = $insertId;
 		$this->json_output();
+
 	}
 
 	public function getAllList()

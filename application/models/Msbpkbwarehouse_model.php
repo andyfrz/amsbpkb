@@ -42,14 +42,15 @@ class Msbpkbwarehouse_model extends MY_Model
 				'required' => '%s tidak boleh kosong'
 			),
 		];
-		/*$rules[] = [
-			'field' => 'fbl_admin',
-			'label' => 'Admin',
-			'rules' => 'required',
-			'errors' =>array(
-				'required' => '%s tidak boleh kosong'
-			)
-		];*/
+
+        $rules[] = [
+            'field' => 'fblisMainWarehouse',
+            'label' => 'Main',
+            'rules' => 'is_unique[tbbpkbwarehouse.finWarehouseId.fblisMainWarehouse.' . $id . ']',
+            'errors' => array(
+                'is_unique' => '%s is more one'
+            )
+        ];
 
 		return $rules;
 	}

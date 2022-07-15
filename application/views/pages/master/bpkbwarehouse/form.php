@@ -109,6 +109,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 						<label for="fblisMainWarehouse" class="col-sm-2 control-label"><?=lang("Main")?></label>
 						<div class="col-md-2">
 							<label class="checkbox-inline"><input id="fblisMainWarehouse" name="fblisMainWarehouse" type="checkbox" value="1"><?=lang("Is Main warehouse")?></label>
+							<div id="fblisMainWarehouse_err" class="text-danger"></div>
 						</div>
 					</div>
 				</div>

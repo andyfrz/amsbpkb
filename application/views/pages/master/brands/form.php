@@ -148,14 +148,13 @@ defined('BASEPATH') or exit('No direct script access allowed');
                         }
                     } else if (resp.status == "SUCCESS") {
                         data = resp.data;
-                        $("#fstBrandCode").val(data.insert_id);
 
                         //Clear all previous error
                         $(".text-danger").html("");
 
                         // Change to Edit mode
                         $("#frm-mode").val("EDIT"); //ADD|EDIT
-                        $('#fstBrandName').prop('readonly', true);
+                        $('#fstBrandCode').prop('readonly', true);
 
                     }
                 },
@@ -250,6 +249,8 @@ defined('BASEPATH') or exit('No direct script access allowed');
                 console.log("ERROR : ", e);
             }
         });
+
+        $('#fstBrandCode').prop('readonly', true);
     }
 </script>
 

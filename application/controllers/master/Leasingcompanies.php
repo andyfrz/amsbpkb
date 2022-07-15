@@ -61,7 +61,7 @@ class Leasingcompanies extends MY_Controller
 		$this->parser->parse('template/main', $this->data);
 	}
 
-	private function openForm($mode = "ADD", $fstLeasingCode = 0)
+	private function openForm($mode = "ADD", $fstLeasingCode = "")
 	{
 		$this->load->library("menus");
 
@@ -91,7 +91,7 @@ class Leasingcompanies extends MY_Controller
 	public function add()
 	{
 		parent::add();
-		$this->openForm("ADD", 0);
+		$this->openForm("ADD", "");
 	}
 
 	public function edit($fstLeasingCode)

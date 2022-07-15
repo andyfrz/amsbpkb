@@ -23,18 +23,31 @@ class Msleasingcompanies_model extends MY_Model
     }
 
 
-    public function getRules($mode = "ADD", $id = 0)
+    public function getRules($mode = "ADD", $id = "")
     {
+        $fstLeasingCode = $this->input->post("fstLeasingCode");
+        $fstGenesysLeasingCode = $this->input->post("fstGenesysLeasingCode");
         $rules = [];
 
-        $rules[] = [
-            'field' => 'fstLeasingCode',
-            'label' => 'Leasing Code',
-            'rules' => 'required',
-            'errors' => array(
-                'required' => '%s tidak boleh kosong'
-            )
-        ];
+        if ($fstLeasingCode != "" && $mode =="ADD"){
+            $rules[] = [
+                'field' => 'fstLeasingCode',
+                'label' => 'Leasing Code',
+                'rules' => 'is_unique[tbleasingcompanies.fstLeasingCode]',
+                'errors' => array(
+                    'is_unique' => 'This %s already exists'
+                )
+            ];
+        }else{
+            $rules[] = [
+                'field' => 'fstLeasingCode',
+                'label' => 'Leasing Code',
+                'rules' => 'required',
+                'errors' => array(
+                    'required' => '%s tidak boleh kosong'
+                )
+            ];
+        }
 
 
         $rules[] = [
@@ -47,7 +60,7 @@ class Msleasingcompanies_model extends MY_Model
         ];
 
         
-        if($mode == "ADD"){
+        if($mode == "ADD" && $fstGenesysLeasingCode !=""){
             $rules[] = [
                 'field' => 'fstGenesysLeasingCode',
                 'label' => 'Genesys Code',
@@ -57,6 +70,15 @@ class Msleasingcompanies_model extends MY_Model
                 )
             ];
     
+        }else{
+            $rules[] = [
+                'field' => 'fstGenesysLeasingCode',
+                'label' => 'Genesys Code',
+                'rules' => 'required',
+                'errors' => array(
+                    'required' => '%s tidak boleh kosong'
+                )
+            ];
         }
 
         /*$rules[] = [

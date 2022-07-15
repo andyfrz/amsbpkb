@@ -59,7 +59,7 @@ class Brands extends MY_Controller
 		$this->parser->parse('template/main', $this->data);
 	}
 
-	private function openForm($mode = "ADD", $fstBrandCode = 0)
+	private function openForm($mode = "ADD", $fstBrandCode = "")
 	{
 		$this->load->library("menus");
 
@@ -103,7 +103,7 @@ class Brands extends MY_Controller
 		parent::ajx_add_save();
 		$this->load->model('msbrands_model');
 		
-		$this->form_validation->set_rules($this->msbrands_model->getRules("ADD", 0));
+		$this->form_validation->set_rules($this->msbrands_model->getRules("ADD", ""));
 		$this->form_validation->set_error_delimiters('<div class="text-danger">* ', '</div>');
 
 		if ($this->form_validation->run() == FALSE) {

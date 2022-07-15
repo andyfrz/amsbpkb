@@ -25,18 +25,12 @@ class Trbpkbob_model extends MY_Model
 
     public function getRules($mode = "ADD", $finId = 0)
     {
+        $fstBpkbNo = $this->input->post("fstBpkbNo");
+        $fstEngineNo = $this->input->post("fstEngineNo");
+        $fstChasisNo = $this->input->post("fstChasisNo");
         $rules = [];
 
-        $rules[] = [
-            'field' => 'fstBpkbNo',
-            'label' => 'BPKB No',
-            'rules' => 'required',
-            'errors' => array(
-                'required' => '%s tidak boleh kosong'
-            )
-        ];
-
-        /*if($mode == "ADD"){
+        if ($fstBpkbNo != "" && $mode =="ADD"){
             $rules[] = [
                 'field' => 'fstBpkbNo',
                 'label' => 'BPKB No',
@@ -45,8 +39,72 @@ class Trbpkbob_model extends MY_Model
                     'is_unique' => 'This %s already exists'
                 )
             ];
-    
-        }*/
+        }else{
+            $rules[] = [
+                'field' => 'fstBpkbNo',
+                'label' => 'BPKB No',
+                'rules' => 'required',
+                'errors' => array(
+                    'required' => '%s tidak boleh kosong'
+                )
+            ];
+        }
+
+        $rules[] = [
+            'field' => 'fstCustomerName',
+            'label' => 'Customer',
+            'rules' => 'required',
+            'errors' => array(
+                'required' => '%s tidak boleh kosong'
+            )
+        ];
+        $rules[] = [
+            'field' => 'fstNik',
+            'label' => 'NIK',
+            'rules' => 'required',
+            'errors' => array(
+                'required' => '%s tidak boleh kosong'
+            )
+        ];
+        if ($fstEngineNo != "" && $mode =="ADD"){
+            $rules[] = [
+                'field' => 'fstEngineNo',
+                'label' => 'Engine No',
+                'rules' => 'is_unique[trbpkb.fstEngineNo]',
+                'errors' => array(
+                    'is_unique' => 'This %s already exists'
+                )
+            ];
+        }else{
+            $rules[] = [
+                'field' => 'fstEngineNo',
+                'label' => 'Engine No',
+                'rules' => 'required',
+                'errors' => array(
+                    'required' => '%s tidak boleh kosong'
+                )
+            ];
+        }
+
+        if ($fstChasisNo != "" && $mode =="ADD"){
+            $rules[] = [
+                'field' => 'fstChasisNo',
+                'label' => 'Chasis No',
+                'rules' => 'is_unique[trbpkb.fstChasisNo]',
+                'errors' => array(
+                    'is_unique' => 'This %s already exists'
+                )
+            ];
+        }else{
+            $rules[] = [
+                'field' => 'fstChasisNo',
+                'label' => 'Chasis No',
+                'rules' => 'required',
+                'errors' => array(
+                    'required' => '%s tidak boleh kosong'
+                )
+            ];
+        }
 
 
         return $rules;

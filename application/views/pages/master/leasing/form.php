@@ -183,7 +183,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
                         // Change to Edit mode
                         $("#frm-mode").val("EDIT"); //ADD|EDIT
-                        $('#fstLeasingName').prop('readonly', true);
+                        $('#fstLeasingCode').prop('readonly', true);
 
                     }
                 },
@@ -230,13 +230,12 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 				if(resp.status == "SUCCESS") {
 					data = resp.data;
-					$("#fstLeasingCode").val(data.insert_id);
 
 					//Clear all previous error
 					$(".text-danger").html("");
 					// Change to Edit mode
 					$("#frm-mode").val("EDIT");  //ADD|EDIT
-					$('#fstLeasingName').prop('readonly', true);
+					$('#fstLeasingCode').prop('readonly', true);
 				}
 			});
 		});
@@ -278,6 +277,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
                 console.log("ERROR : ", e);
             }
         });
+        $('#fstLeasingCode').prop('readonly', true);
     }
 </script>
 

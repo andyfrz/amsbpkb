@@ -148,14 +148,13 @@ defined('BASEPATH') or exit('No direct script access allowed');
                         }
                     } else if (resp.status == "SUCCESS") {
                         data = resp.data;
-                        $("#fstColourCode").val(data.insert_id);
 
                         //Clear all previous error
                         $(".text-danger").html("");
 
                         // Change to Edit mode
                         $("#frm-mode").val("EDIT"); //ADD|EDIT
-                        $('#fstColourName').prop('readonly', true);
+                        $('#fstColourCode').prop('readonly', true);
 
                     }
                 },
@@ -208,7 +207,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
 					$(".text-danger").html("");
 					// Change to Edit mode
 					$("#frm-mode").val("EDIT");  //ADD|EDIT
-					$('#fstColourName').prop('readonly', true);
+					$('#fstColourCode').prop('readonly', true);
 				}
 			});
 		});
@@ -250,6 +249,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
                 console.log("ERROR : ", e);
             }
         });
+        $('#fstColourCode').prop('readonly', true);
     }
 </script>
 

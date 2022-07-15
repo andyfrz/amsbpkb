@@ -89,18 +89,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 							<label class="checkbox-inline"><input id="fblIsSystemTrx" name="fblIsSystemTrx" type="checkbox" value="1"><?=lang("System Trx")?></label>
 						</div>
 					</div>
-				</div>
-				<!-- end box body -->
-				<form class="form-horizontal edit-mode ">	
 					<div class="form-group">
 						<div class="col-md-12">
 							<button id="btn-add-trx-detail" class="btn btn-primary btn-sm pull-right edit-mode"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;&nbsp;<?= lang("PIC Detail") ?></button>
-						</div>
-						<div class="col-md-12">
-							<table id="tbl_trx_detail" class="table table-bordered table-hover" style="width:100%;"></table>
-						</div>							
+						</div>						
 					</div>
-				</form>
+					<table id="tbl_trx_detail" class="table table-bordered table-hover" style="width:100%;"></table>
+				</div>
+				<!-- end box body -->
 
 				<div class="box-footer text-right">
 					
@@ -361,6 +357,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 			rootSelector: '#btnDelete',
 			placement: 'left',
 		});
+		
 		$("#btnDelete").click(function(e){
 			e.preventDefault();
 			blockUIOnAjaxRequest("<h5>Deleting ....</h5>");

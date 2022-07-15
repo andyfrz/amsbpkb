@@ -131,7 +131,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 			},
 			hide:function(){
-				$("#MdlCheckin").modal("hide");
+				$("#MdlBpkb").modal("hide");
 			},
 			clear:function(){
 				

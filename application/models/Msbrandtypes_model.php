@@ -24,6 +24,7 @@ class Msbrandtypes_model extends MY_Model
 
     public function getRules($mode = "ADD", $finBrandTypeId = 0)
     {
+        $fstGenesysBrandTypeCode = $this->input->post("fstGenesysBrandTypeCode");
         $rules = [];
 
         $rules[] = [
@@ -44,6 +45,26 @@ class Msbrandtypes_model extends MY_Model
                 'required' => '%s tidak boleh kosong'
             )
         ];
+
+        if ($fstGenesysBrandTypeCode != "" && $mode =="ADD"){
+            $rules[] = [
+                'field' => 'fstGenesysBrandTypeCode',
+                'label' => 'Genesys Code',
+                'rules' => 'is_unique[tbbrandtypes.fstGenesysBrandTypeCode]',
+                'errors' => array(
+                    'is_unique' => 'This %s already exists'
+                )
+            ];
+        }else{
+            $rules[] = [
+                'field' => 'fstGenesysBrandTypeCode',
+                'label' => 'Genesys Code',
+                'rules' => 'required',
+                'errors' => array(
+                    'required' => '%s tidak boleh kosong'
+                )
+            ];
+        }
 
 
         return $rules;

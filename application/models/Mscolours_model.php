@@ -23,19 +23,31 @@ class Mscolours_model extends MY_Model
 
 
 
-    public function getRules($mode = "ADD", $id = 0)
+    public function getRules($mode = "ADD", $id = "")
     {
+        $fstColourCode = $this->input->post("fstColourCode");
+        $fstGenesysColourCode = $this->input->post("fstGenesysColourCode");
         $rules = [];
 
-        $rules[] = [
-            'field' => 'fstColourCode',
-            'label' => 'Colour Code',
-            'rules' => 'required',
-            'errors' => array(
-                'required' => '%s tidak boleh kosong'
-            )
-        ];
-
+        if ($fstColourCode != "" && $mode =="ADD"){
+            $rules[] = [
+                'field' => 'fstColourCode',
+                'label' => 'Colour Code',
+                'rules' => 'is_unique[tbcolours.fstColourCode]',
+                'errors' => array(
+                    'is_unique' => 'This %s already exists'
+                )
+            ];
+        }else{
+            $rules[] = [
+                'field' => 'fstColourCode',
+                'label' => 'Colour Code',
+                'rules' => 'required',
+                'errors' => array(
+                    'required' => '%s tidak boleh kosong'
+                )
+            ];
+        }
 
         $rules[] = [
             'field' => 'fstColourName',
@@ -45,6 +57,26 @@ class Mscolours_model extends MY_Model
                 'required' => '%s tidak boleh kosong'
             )
         ];
+
+        if ($fstGenesysColourCode != "" && $mode =="ADD"){
+            $rules[] = [
+                'field' => 'fstGenesysColourCode',
+                'label' => 'Genesys Code',
+                'rules' => 'is_unique[tbcolours.fstGenesysColourCode]',
+                'errors' => array(
+                    'is_unique' => 'This %s already exists'
+                )
+            ];
+        }else{
+            $rules[] = [
+                'field' => 'fstGenesysColourCode',
+                'label' => 'Genesys Code',
+                'rules' => 'required',
+                'errors' => array(
+                    'required' => '%s tidak boleh kosong'
+                )
+            ];
+        }
 
         /*$rules[] = [
             'field' => 'fbl_is_hq',
