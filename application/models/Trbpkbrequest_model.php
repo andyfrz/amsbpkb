@@ -12,6 +12,8 @@ class Trbpkbrequest_model extends MY_Model
 
     public function getDataById($fstReqNo)
     {
+        $user = $this->aauth->user();
+        $activeDealer = $user->fstDealerCode;
         $ssql = "SELECT * FROM " . $this->tableName . " WHERE fstReqNo = ?";
         $qr = $this->db->query($ssql, [$fstReqNo]);
         //echo $this->db->last_query();
@@ -22,10 +24,25 @@ class Trbpkbrequest_model extends MY_Model
         $qr = $this->db->query($ssql, [$fstReqNo]);
         $rsReqdetail = $qr->result();
 
-        $data = [
-            "request" => $rwReq,
-            "requestDetail" => $rsReqdetail
-        ];
+        if ($activeDealer !=""){
+            if ($activeDealer == $rwReq->fstDealerCode){
+                $data = [
+                    "request" => $rwReq,
+                    "requestDetail" => $rsReqdetail
+                ];
+            }else{
+                $data = [
+                    "request" => "",
+                    "requestDetail" => ""
+                ];
+            }
+
+        }else{
+            $data = [
+                "request" => $rwReq,
+                "requestDetail" => $rsReqdetail
+            ];
+        }
         return $data;
     }
 
@@ -143,6 +160,46 @@ class Trbpkbrequest_model extends MY_Model
             "dealerbpkb" => $rwBpkb
         ];
         return $data;
+    }
+
+    public function approve($fstReqNo){
+        $user = $this->aauth->user();
+        $activeUser = $user->fstUserCode;
+        $approvedDate = date ("Y-m-d H:i:s");
+        $ssql = "select * from " . $this->tableName . " where fstReqNo = ?";
+        $qr = $this->db->query($ssql,[$fstReqNo]);        
+        $rw = $qr->row();
+        if($rw==null){
+            throw new CustomException(lang("No Request $fstReqNo tidak ditemukan !"),3003,"FAILED",[]);
+        }
+        $ssql = "UPDATE " . $this->tableName . " SET fstTrxPICApprovedBy = '$activeUser',fdtTrxPICApprovedDatetime ='$approvedDate' WHERE fstReqNo = ?";
+        $qr = $this->db->query($ssql,[$fstReqNo]);
+        //echo $this->db->last_query();
+        //die();
+
+
+    }
+
+    public function cancelApprove($fstReqNo){
+        
+        $ssql = "select * from " . $this->tableName . " where fstReqNo = ?";
+        $qr = $this->db->query($ssql,[$fstReqNo]);        
+        $rw = $qr->row();
+        if($rw==null){
+            throw new CustomException(lang("No Request tidak ditemukan !"),3003,"FAILED",[]);
+        }
+
+        $ssql = "select * from trbpkbtransferout where fstReqNo = ?";
+        $qr = $this->db->query($ssql,[$fstReqNo]);        
+        $rw = $qr->row();
+        if($rw!=null){
+            throw new CustomException(lang("No Request sudah ada Transfer OUT !"),3003,"FAILED",[]);
+        }
+
+        $ssql = "UPDATE " . $this->tableName . " SET fstTrxPICApprovedBy = NULL,fdtTrxPICApprovedDatetime = NULL WHERE fstReqNo = ?";
+        $qr = $this->db->query($ssql,[$fstReqNo]);
+
+
     }
 
 

@@ -3,6 +3,30 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
 <!-- <link rel="stylesheet" href="<?=base_url()?>bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css"> -->
 <link rel="stylesheet" href="<?=base_url()?>bower_components/datatables.net/datatables.min.css">
+<style type="text/css">
+	.border-0{
+		border: 0px;
+	}
+	td{
+		padding: 2px; !important 		
+	}
+    .nav-tabs-custom>.nav-tabs>li.active>a{
+        font-weight:bold;
+        border-left-color: #3c8dbc;
+        border-right-color: #3c8dbc;
+        border-style:fixed;
+    }
+    .nav-tabs-custom>.nav-tabs{
+        border-bottom-color: #3c8dbc;        
+        border-bottom-style:fixed;
+    }
+	.form-group{
+		margin-bottom: 5px;
+	}
+	.checkbox label, .radio label {
+		font-weight:700;
+	}
+</style>
 
 <section class="content-header">
 	<h1><?=$page_name?><small>List</small></h1>
@@ -14,7 +38,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 				}else{
 					echo "<li><a href='".$breadcrumb["link"]."'>".$breadcrumb["icon"].$breadcrumb["title"]."</a></li>";
 				}
-				
 			} 
 		?>
 	</ol>
@@ -31,9 +54,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 					<?php if (isset($report_url)){ ?>
 						<a id="btnPrint" href="<?=$report_url?>" class="btn btn-primary btn-sm"><i class="fa fa-print" aria-hidden="true"></i> Report </a>
 					<?php } ?>
-
 				</div>
-
 			</div>			
 			<!-- /.box-header -->
 			<div class="box-body">
@@ -105,9 +126,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 						</div>
 					</div>					
 				</form>
-
                 <table id="dtblSalesTrx" style="width:100%"></table>
-                
 			</div>
 		</div>
 	</div>
@@ -119,7 +138,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 				mdlBpkb.clear();
 				console.log(data);
 
-
 				if (typeof(data) == "undefined"){
 					$("#MdlBpkb").modal("show");					
 					return;
@@ -127,14 +145,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 				$("#MdlBpkb").modal({
 					backdrop:"static",
 				});
-				
-
 			},
 			hide:function(){
 				$("#MdlBpkb").modal("hide");
 			},
 			clear:function(){
-				
 				$("#fstCustomerName").val("");
 				$("#fstNik").val("");
 				$("#fstSPKNo").val("");
@@ -183,7 +198,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     "title": "Action",
                     "width": "5%",
                     render: function(data, type, row) {
-                        action = "<a class='btn-add-trx' href='#'><i class='fa fa-plus-square'></i></a>&nbsp;";
+                        action = "<a class='btn-add-trx' href='#'><i class='fa fa-check-square'></i></a>&nbsp;";
                         return action;
                     },
                     "sortable": false,
@@ -284,49 +299,57 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 </script>
 
-<div id="MdlCheckin" class="modal fade" role="dialog">
-	<div class="modal-dialog" style="width:800px">
+<div id="MdlCheckin" class="modal fade in" role="dialog" style="display: none">
+	<div class="modal-dialog" style="display:table;width:650px">
 		<!-- Modal content-->
-		<div class="modal-content">
-			<div class="modal-header">
+		<div class="modal-content" style="border-top-left-radius:15px;border-top-right-radius:15px;border-bottom-left-radius:15px;border-bottom-right-radius:15px;">
+			<div class="modal-header" style="padding:15px;background-color:#3c8dbc;color:#ffffff;border-top-left-radius: 15px;border-top-right-radius: 15px;">
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
 				<h4 class="modal-title"><?= lang("BPKB Checkin") ?></h4>
 			</div>
-			<div class="modal-body">		
-				<form class="form-horizontal">
-					<input type="hidden" name = "<?=$this->security->get_csrf_token_name()?>" value="<?=$this->security->get_csrf_hash()?>">
-					<input type='hidden' id='finSalesTrxId'/>
-					<div class='form-group'>
-                    	<label for="cfstBpkbNo" class="col-sm-2 control-label">BPKB No.</label>
-						<div class="col-sm-4">
-							<input type="text" id="cfstBpkbNo" class="form-control"></input>
-							<div id="cfstBpkbNo_err" class="text-danger"></div>
-						</div>
-                        <label for="cfdtBpkbDate" class="col-md-2 control-label"><?= lang("BPKB Date") ?></label>
-                        <div class="col-sm-4">
-                            <div class="input-group date">
-                                <div class="input-group-addon">
-                                    <i class="fa fa-calendar"></i>
-                                </div>
-                                <input type="text" class="form-control datepicker" id="cfdtBpkbDate" name="cfdtBpkbDate"/>
-                            </div>
-                            <div id="cfdtBpkbDate_err" class="text-danger"></div>
-                            <!-- /.input group -->
+			<div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" >
+                        <div style="border:1px inset #f0f0f0;border-radius:10px;padding:1px">
+                            <fieldset style="padding:10px">
+                                <form class="form-horizontal ">
+									<input type='hidden' id='finSalesTrxId'/>
+                                    <div class="form-group">
+										<label for="cfstBpkbNo" class="col-md-3 control-label"><?=lang("BPKB No")?></label>
+										<div class="col-md-9">
+											<input id="cfstBpkbNo" class="form-control"></input>
+											<div id="cfstBpkbNo_err" class="text-danger"></div>
+										</div>
+									</div>
+									<div class="form-group">
+									<label for="cfdtBpkbDate" class="col-md-3 control-label"><?= lang("BPKB Date") ?></label>
+										<div class="col-md-9">
+											<div class="input-group date">
+												<div class="input-group-addon">
+													<i class="fa fa-calendar"></i>
+												</div>
+												<input type="text" class="form-control datepicker" id="cfdtBpkbDate" name="cfdtBpkbDate"/>
+											</div>
+											<div id="cfdtBpkbDate_err" class="text-danger"></div>
+											<!-- /.input group -->
+										</div>
+									</div>
+                                    <div class="form-group">
+										<label for="cfstInfo" class="col-md-3 control-label"><?=lang("Note")?></label>
+										<div class="col-md-9">
+											<textarea type="text" class="form-control" id="cfstInfo" rows="3"></textarea>
+										</div>
+									</div>
+                                </form>
+								<div class="modal-footer">
+									<button id="btnCheckin" type="button" class="btn btn-primary btn-sm text-center" style="width:15%"><?=lang("Checkin")?></button>
+									<button type="button" class="btn btn-default btn-sm text-center" style="width:15%" data-dismiss="modal"><?=lang("Close")?></button>
+								</div>
+                            </fieldset>
                         </div>
-					</div>
-                    <div class='form-group'>
-                    	<label for="cfstInfo"" class="col-sm-2 control-label">Info</label>
-						<div class="col-sm-7">
-							<input type="text" id="cfstInfo" class="form-control"></input>
-						</div>
-					</div>					
-				</form>
-				<div class="modal-footer">
-					<button id="btnCheckin" type="button" class="btn btn-primary btn-sm text-center" style="width:15%"><?=lang("Checkin")?></button>
-					<button type="button" class="btn btn-default btn-sm text-center" style="width:15%" data-dismiss="modal"><?=lang("Close")?></button>
-				</div>
-                
-			</div>
+                    </div>
+                </div>
+            </div>
 		</div>
 	</div>
 	<script type="text/javascript">

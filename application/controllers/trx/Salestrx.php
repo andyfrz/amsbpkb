@@ -17,6 +17,7 @@ class salestrx extends MY_Controller
 
 	public function index()
 	{
+		parent::index();
 		$this->load->library('menus');
         $this->list['page_name']="Delete Tiket";
         $this->list['pKey']="id";

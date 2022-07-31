@@ -145,64 +145,19 @@ echo "</pre>";
 </section>
 
 <section class="content">
-<!-- Info boxes -->
+
 <div class="row">
-<div class="col-md-3 col-sm-6 col-xs-12">
-    <div class="info-box">
-    <span class="info-box-icon bg-green"><i class="ion-archive"></i></span>
-
-    <div class="info-box-content">
-        <span class="info-box-text">Download</span>
-        <span class="info-box-number">1</span>
+    <div class="col-lg-3 col-xs-6">
+        <div class="small-box bg-aqua">
+            <div class="inner">
+                <h3>{ttlNeedApproval}</h3>
+                <p><?=lang("Need Approval")?></p>
+            </div>
+            <div class="icon">
+                <i class="ion-checkmark-circled"></i>
+            </div>
+            <a href="<?= site_url() ?>trx/approval" class="small-box-footer">More detail <i class="fa fa-pencil" aria-hidden="true"></i></a>
+        </div>
     </div>
-    <!-- /.info-box-content -->
-    </div>
-    <!-- /.info-box -->
 </div>
-<!-- /.col -->
-<div class="col-md-3 col-sm-6 col-xs-12">
-    <div class="info-box">
-    <span class="info-box-icon bg-aqua"><i class="ion-checkmark-circled"></i></span>
-
-    <div class="info-box-content">
-        <span class="info-box-text">Success</span>
-        <span class="info-box-number">2</span>
-    </div>
-    <!-- /.info-box-content -->
-    </div>
-    <!-- /.info-box -->
-</div>
-<!-- /.col -->
-
-<!-- fix for small devices only -->
-<div class="clearfix visible-sm-block"></div>
-
-<div class="col-md-3 col-sm-6 col-xs-12">
-    <div class="info-box">
-    <span class="info-box-icon bg-yellow"><i class="ion ion-load-b"></i></span>
-
-    <div class="info-box-content">
-        <span class="info-box-text">On Progress</span>
-        <span class="info-box-number">3</span>
-    </div>
-    <!-- /.info-box-content -->
-    </div>
-    <!-- /.info-box -->
-</div>
-<!-- /.col -->
-<div class="col-md-3 col-sm-6 col-xs-12">
-    <div class="info-box">
-    <span class="info-box-icon bg-red"><i class="ion-alert-circled"></i></span>
-
-    <div class="info-box-content">
-        <span class="info-box-text">Failed</span>
-        <span class="info-box-number">4</span>
-    </div>
-    <!-- /.info-box-content -->
-    </div>
-    <!-- /.info-box -->
-</div>
-<!-- /.col -->
-</div>
-<!-- /.row -->
 </section>

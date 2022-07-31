@@ -63,19 +63,17 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 					<div class="form-group">
 						<label for="fst_user_code" class="col-sm-2 control-label"><?=lang("User Code")?> *</label>
-						<div class="col-sm-10">
+						<div class="col-sm-4">
 							<input type="text" class="form-control" id="fstUserCode" placeholder="<?=lang("User Code")?>" name="fstUserCode" value="<?= $fstUserCode ?>">
 							<div id="fstUserCode_err" class="text-danger"></div>
 						</div>
-					</div>
-
-					<div class="form-group">
 						<label for="fst_user_name" class="col-sm-2 control-label"><?=lang("User Name")?> *</label>
-						<div class="col-sm-10">
+						<div class="col-sm-4">
 							<input type="text" class="form-control" id="fstUserName" placeholder="<?=lang("User Name")?>" name="fstUserName" value="<?= set_value("fstUserName") ?>">
 							<div id="fstUserName_err" class="text-danger"></div>
 						</div>
 					</div>
+
 					<div class="form-group">
 						<label for="fst_mobile_no" class="col-md-2 control-label"><?=lang("Mobile No")?> *</label>
 						<div class="col-md-4">
@@ -92,8 +90,22 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 					<div class="form-group special-access" style="display:none">
 						<label for="fbl_is_admin" class="col-sm-2 control-label"><?=lang("Admin")?></label>
-						<div class="col-md-2">
+						<div class="col-md-4">
 							<label class="checkbox-inline"><input id="fblIsAdmin" name="fblIsAdmin" type="checkbox" value="1"><?=lang("Admin/Special Access")?></label>
+						</div>
+
+						<label for="fstDealerCode" class="col-md-2 control-label"><?= lang("Dealer") ?></label>
+						<div class="col-md-4">
+							<select class="form-control" id="fstDealerCode" name="fstDealerCode">
+							<option value="">ALL</option>
+								<?php
+									$dealerList = $this->msdealers_model->getAllList();
+									foreach($dealerList as $dealer){
+										echo "<option value='$dealer->fstDealerCode'>$dealer->fstDealerName</option>";
+									}
+								?>
+							</select>
+							<div id="fstDealerCode_err" class="text-danger"></div>
 						</div>
 					</div>
 				</div>
@@ -117,6 +129,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		</div>
 	</div>
 </section>
+
+<script type="text/javascript" info="INIT">
+    $(function(){
+        $("#fstDealerCode").val(null).change();
+	});
+</script>
 
 <script type="text/javascript">
 
@@ -243,13 +261,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 				if(resp.status == "SUCCESS") {
 					data = resp.data;
-					$("#fst_user_code").val(data.insert_id);
+					$("#fstUserCode").val(data.insert_id);
 
 					//Clear all previous error
 					$(".text-danger").html("");
 					// Change to Edit mode
 					$("#frm-mode").val("EDIT");  //ADD|EDIT
-					$('#fst_user_name').prop('readonly', true);
+					$('#fstUserCode').prop('readonly', true);
 				}
 			});
 		});
@@ -291,12 +309,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 					}
 				});
 
+				$('#fstUserCode').prop('readonly', true);
+
 				if (resp.user.fblIsAdmin == "1"){
 					$("#fblIsAdmin").prop("checked",true);
 				}else{
 					$("#fblIsAdmin").prop("checked",false);
 				}	
 			},
+			
 
 			error: function (e) {
 				$("#result").text(e.responseText);

@@ -286,7 +286,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 <script type="text/javascript" info="INIT">
     $(function(){
-        $("#fdtTransferOutDate").val(dateFormat("<?= date("Y-m-d")?>")).datepicker("update");
+        $("#fdtTransferInDate").val(dateFormat("<?= date("Y-m-d")?>")).datepicker("update");
         $("#fstTransferOutNo").val(null).change();
         $("#finWarehouseId").val(null).change();
     

@@ -71,12 +71,12 @@ class Bpkbrequest extends MY_Controller
                 }"
             ],
 			['title' => 'Memo', 'width' => '20%', 'data' => 'fstMemo'],
-            ['title' => 'Approved Date', 'width' => '8%', 'data' => 'fdtTrxPICApprovedDatetime'],
-			['title' => 'Action', 'width' => '10%', 'sortable' => false, 'className' => 'text-center',
+            ['title' => 'Approved Date', 'width' => '10%', 'data' => 'fdtTrxPICApprovedDatetime'],
+			['title' => 'Action', 'width' => '8%', 'sortable' => false, 'className' => 'text-center',
 			'render'=>"function(data,type,row){
 				action = '<div style=\"font-size:16px\">';
-				action += '<a class=\"btn-edit\" href=\"".site_url()."trx/bpkbrequest/edit/' + row.fstReqNo + '\" data-id=\"\"><i class=\"fa fa-pencil\"></i></a>&nbsp;';
-				action += '<a class=\"btn-delete\" href=\"#\" data-id=\"\" data-toggle=\"confirmation\" ><i class=\"fa fa-trash\"></i></a>';
+				action += '<a class=\"btn-edit\" href=\"".site_url()."trx/bpkbrequest/edit/' + row.fstReqNo + '\" data-id=\"\"><i class=\"fa fa-pencil-square-o\"></i></a>&nbsp;';
+				//action += '<a class=\"btn-delete\" href=\"#\" data-id=\"\" data-toggle=\"confirmation\" ><i class=\"fa fa-trash\"></i></a>';
 				action += '<div>';
 				return action;
 			}"
@@ -110,7 +110,7 @@ class Bpkbrequest extends MY_Controller
         $main_header = $this->parser->parse('inc/main_header',[],true);
 		$main_sidebar = $this->parser->parse('inc/main_sidebar',[],true);
 
-		$data["mode"] = $mode;
+        $data["mode"] = $mode;
 		$data["title"] = $mode == "ADD" ? "Add Request" : "Update Request";
 		$data["fstReqNo"] = $fstReqNo;
         $fstReqNo = $this->trbpkbrequest_model->GenerateNo();
@@ -138,6 +138,11 @@ class Bpkbrequest extends MY_Controller
         $this->openForm("EDIT",$fstReqNo);
     }
 
+    public function view($fstReqNo){
+		$this->openForm("VIEW", $fstReqNo);
+	}
+
+
 
 	public function ajx_add_save()
 	{
@@ -145,6 +150,8 @@ class Bpkbrequest extends MY_Controller
 		$this->load->model('trbpkbrequest_model');
 		$this->form_validation->set_rules($this->trbpkbrequest_model->getRules("ADD", ""));
 		$this->form_validation->set_error_delimiters('<div class="text-danger">* ', '</div>');
+        $user = $this->aauth->user();
+        $dealerActive = $user->fstDealerCode;
 
 		if ($this->form_validation->run() == FALSE) {
 			//print_r($this->form_validation->error_array());
@@ -161,11 +168,16 @@ class Bpkbrequest extends MY_Controller
 			"fstReqNo" => $fstReqNo,
 			"fdtReqDate"=>dBDateFormat($this->input->post("fdtReqDate")),
             "finTrxId" => $this->input->post("hfinTrxId"),
-			"fstDealerCode" => $this->input->post("fstDealerCode"),
+			//"fstDealerCode" => $this->input->post("fstDealerCode"),
             "finTransferType" => $this->input->post("finTransferType"),
             "fstMemo" => $this->input->post("fstMemo"),
 			"fst_active" => 'A'
 		];
+        if ($dealerActive !='' || $dealerActive != null){
+			$data["fstDealerCode"] = $dealerActive;
+		}else {
+			$data["fstDealerCode"] = $this->input->post("fstDealerCode");
+		}
 		$this->db->trans_start();
 		$insertId = $this->trbpkbrequest_model->insert($data);
 
@@ -213,6 +225,9 @@ class Bpkbrequest extends MY_Controller
 	public function ajx_edit_save()
 	{
 		parent::ajx_edit_save();
+        $user = $this->aauth->user();
+        $dealerActive = $user->fstDealerCode;
+
 		$this->load->model('trbpkbrequest_model');
 		$fstReqNo = $this->input->post('fstReqNo');
 		$data = $this->trbpkbrequest_model->getDataById($fstReqNo);
@@ -240,11 +255,16 @@ class Bpkbrequest extends MY_Controller
 			"fstReqNo" => $fstReqNo,
 			"fdtReqDate"=>dBDateFormat($this->input->post("fdtReqDate")),
             "finTrxId" => $this->input->post("hfinTrxId"),
-			"fstDealerCode" => $this->input->post("fstDealerCode"),
+			//"fstDealerCode" => $this->input->post("fstDealerCode"),
             "finTransferType" => $this->input->post("finTransferType"),
             "fstMemo" => $this->input->post("fstMemo"),
 			"fst_active" => 'A'
 		];
+        if ($dealerActive !='' || $dealerActive != null){
+			$data["fstDealerCode"] = $dealerActive;
+		}else {
+			$data["fstDealerCode"] = $this->input->post("fstDealerCode");
+		}
 
 		$this->db->trans_start();
 		$this->trbpkbrequest_model->update($data);
@@ -282,10 +302,20 @@ class Bpkbrequest extends MY_Controller
 
 	public function fetch_list_data()
 	{
+        $user = $this->aauth->user();
+        $activeDealer = $user->fstDealerCode;
 		$this->load->library("datatables");
-        $this->datatables->setTableName("(
-            SELECT a.*,b.fstDealerName FROM trbpkbrequest a LEFT JOIN tbdealers b ON a.fstDealerCode = b.fstDealerCode
-        ) a");
+
+        if ($activeDealer ==""){
+            $this->datatables->setTableName("(
+                SELECT a.*,b.fstDealerName FROM trbpkbrequest a LEFT JOIN tbdealers b ON a.fstDealerCode = b.fstDealerCode
+            ) a");
+        }else{
+            $this->datatables->setTableName("(
+                SELECT a.*,b.fstDealerName FROM trbpkbrequest a LEFT JOIN tbdealers b ON a.fstDealerCode = b.fstDealerCode
+            WHERE a.fstDealerCode = '$activeDealer' ) a");
+        }
+
 
 		$selectFields = "fstReqNo,fdtReqDate,fstDealerName,finTransferType,fstMemo,fdtTrxPICApprovedDatetime,'action' as action";
 		$this->datatables->setSelectFields($selectFields);
@@ -422,6 +452,7 @@ class Bpkbrequest extends MY_Controller
 	{
         $fstDealerCode = $this->input->post("fstDealerCode");
         $fstBpkbNo = $this->input->post("fstBpkbNo");
+        $finTrxId = $this->input->post("finTrxId");
 
         $ssql = "SELECT * FROM trbpkb WHERE fstBpkbNo = ? ";
         $qr = $this->db->query($ssql, [$fstBpkbNo]);
@@ -429,15 +460,22 @@ class Bpkbrequest extends MY_Controller
         //die();
         $rwBpkb = $qr->row();
         if ($rwBpkb->fstBpkbStatus =='CHECKIN' OR $rwBpkb->fstBpkbStatus =='OB_CHECKIN'){
-            $this->load->model('Trbpkbrequest_model');
-            $data = $this->Trbpkbrequest_model->cekDealer($fstBpkbNo,$fstDealerCode);
-            $dealer = $data["dealerbpkb"];
-            if (!$dealer) {
-                $this->ajxResp["status"] = "NOT VALID";
-                $this->ajxResp["message"] = "Dealer tidak sesuai !!!";
-                $this->ajxResp["data"] = [];
-                $this->json_output();
-                return;
+            if ($finTrxId !='5'){
+                $this->load->model('Trbpkbrequest_model');
+                $data = $this->Trbpkbrequest_model->cekDealer($fstBpkbNo,$fstDealerCode);
+                $dealer = $data["dealerbpkb"];
+                if (!$dealer) {
+                    $this->ajxResp["status"] = "NOT VALID";
+                    $this->ajxResp["message"] = "Dealer tidak sesuai !!!";
+                    $this->ajxResp["data"] = [];
+                    $this->json_output();
+                    return;
+                }else{
+                    $this->ajxResp["status"] = "VALID";
+                    $this->ajxResp["message"] = "";
+                    $this->ajxResp["data"] = [];
+                    $this->json_output();
+                }
             }else{
                 $this->ajxResp["status"] = "VALID";
                 $this->ajxResp["message"] = "";

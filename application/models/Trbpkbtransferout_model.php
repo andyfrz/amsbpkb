@@ -323,19 +323,16 @@ class Trbpkbtransferout_model extends MY_Model
 
     public function cekWarehouse($fstBpkbNo,$finWarehouseId)
     {
-        $ssql = "SELECT * FROM trbpkb WHERE fstBpkbNo = ? AND finWarehouseId = ?";
+        $ssql = "SELECT IFNULL(sum(fdbIn - fdbOut),0) as fdbSisa FROM trbpkblogs where fstBpkbNo = ? AND finWarehouseId= ? AND fst_active ='A'";
         $qr = $this->db->query($ssql, [$fstBpkbNo,$finWarehouseId]);
         //echo $this->db->last_query();
         //die();
-        $rwBpkb = $qr->row();
+        $rwReady = $qr->row();
 
         $data = [
-            "warehousebpkb" => $rwBpkb
+            "warehousebpkb" => $rwReady
         ];
         return $data;
     }
-
-
-
 
 }

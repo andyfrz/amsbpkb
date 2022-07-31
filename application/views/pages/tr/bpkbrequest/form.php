@@ -44,12 +44,14 @@ defined('BASEPATH') or exit('No direct script access allowed');
             <div class="box box-info">
                 <div class="box-header with-border">
                     <h3 class="box-title title"><?= $title ?></h3>
+                    <?php if ($mode != "VIEW") { ?>
                     <div class="btn-group btn-group-sm  pull-right">					
                         <a id="btnNew" class="btn btn-primary" href="#" title="<?=lang("Tambah Baru")?>"><i class="fa fa-plus" aria-hidden="true"></i></a>
                         <a id="btnSubmitAjax" class="btn btn-primary" href="#" title="<?=lang("Simpan")?>"><i class="fa fa-floppy-o" aria-hidden="true"></i></a>
                         <a id="btnDelete" class="btn btn-primary" href="#" title="<?=lang("Hapus")?>"><i class="fa fa-trash" aria-hidden="true"></i></a>
                         <a id="btnList" class="btn btn-primary" href="#" title="<?=lang("Daftar Transaksi")?>"><i class="fa fa-list" aria-hidden="true"></i></a>												
                     </div>
+                    <?php } ?>
                 </div>
                 <!-- end box header -->
 
@@ -80,11 +82,18 @@ defined('BASEPATH') or exit('No direct script access allowed');
                         <div class="form-group">
                             <label for="fstDealerCode" class="col-md-2 control-label"><?= lang("Dealer") ?></label>
                             <div class="col-md-4">
-                                <select class="form-control" id="fstDealerCode" name="fstDealerCode">
+                                <?php
+                                $user = $this->aauth->user();
+                                $dealerActive = $user->fstDealerCode;
+                                $disabledSelect = ($dealerActive == "") ? "" : "disabled";
+                                ?>
+                                <select class="form-control" id="fstDealerCode" name="fstDealerCode" <?= $disabledSelect ?>>
                                     <?php
                                         $dealerList = $this->msdealers_model->getAllList();
                                         foreach($dealerList as $dealer){
-                                            echo "<option value='$dealer->fstDealerCode'>$dealer->fstDealerName</option>";
+                                            $isActive = ($dealer->fstDealerCode == $dealerActive) ? "selected" : "";
+                                            echo "<option value=" . $dealer->fstDealerCode . " $isActive >" . $dealer->fstDealerName . "</option>";
+                                            //echo "<option value='$dealer->fstDealerCode'>$dealer->fstDealerName</option>";
                                         }
                                     ?>
                                 </select>
@@ -114,12 +123,14 @@ defined('BASEPATH') or exit('No direct script access allowed');
                                     <option value='6'><?=lang("Proses Ulang")?></option>
                                 </select>
                             </div>
+                            <?php if ($mode != "VIEW") { ?>
 							<div class="col-md-6" style='text-align:right'>
 								<button id="btn-add-detail" class="btn btn-primary btn-sm">
 									<i class="fa fa-cart-plus" aria-hidden="true"></i>
 									<?=lang("Add Bpkb")?>
 								</button>
 							</div>
+                            <?php } ?>	
 						</div>
 
                         <table id="tbl_req_detail" class="table table-bordered table-hover table-striped nowarp row-border" style="min-width:100%"></table>
@@ -256,7 +267,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
                         },
                         "sortable": false,
                         "className": "dt-body-center text-center"
-                    },                  				
+                    },                				
                 ],			
                 processing: false,
                 serverSide: false,
@@ -407,6 +418,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
                     [SECURITY_NAME]:SECURITY_VALUE,
                     "fstDealerCode": $("#fstDealerCode").val(),
                     "fstBpkbNo": $("#rfstBpkbNo").val(),
+                    "finTrxId": $("#hfinTrxId").val(),
                 };
                 t = $('#tbl_req_detail').DataTable();
                 addRow = true;
@@ -514,7 +526,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
 <script type="text/javascript" info="INIT">
     $(function(){
         $("#fdtReqDate").val(dateFormat("<?= date("Y-m-d")?>")).datepicker("update");
-        $("#fstDealerCode").val(null).change();
+        //$("#fstDealerCode").val(null).change();
 
         $("#tbl_req_detail").DataTable({
             searching: false,
@@ -538,6 +550,8 @@ defined('BASEPATH') or exit('No direct script access allowed');
                     data: "fstNotes",
                     visible: true,
                 },
+
+                <?php if ($mode != "VIEW") { ?>
                 {
                     "title": "<?= lang("Action ") ?>",
                     "width": "5%",
@@ -548,6 +562,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
                     "sortable": false,
                     "className": "dt-body-center text-center"
                 }
+                <?php } ?>	
             ],
         }).on('draw',function(){
             $('.btn-delete-req-detail').confirmation({
@@ -570,7 +585,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
 <script type="text/javascript" info="EVENT">
     $(function() {
 
-        <?php if ($mode == "EDIT") { ?>
+        <?php if ($mode != "ADD") { ?>
             init_form($("#fstReqNo").val());
         <?php } ?>
 
@@ -718,45 +733,48 @@ defined('BASEPATH') or exit('No direct script access allowed');
     function init_form(fstReqNo) {
         //alert("Init Form");
         //var fstReqNo = $.md5(fstReqNo);
+        var mode = "<?=$mode?>";		
         var url = "<?= site_url() ?>trx/bpkbrequest/fetch_data/" + fstReqNo;
-        $.ajax({
-            type: "GET",
-            url: url,
-            success: function(resp) {
-                console.log(resp.request);
-                dataH = resp.request;
-			    dataD = resp.requestDetail;
+        if (mode != "ADD"){	
+            $.ajax({
+                type: "GET",
+                url: url,
+                success: function(resp) {
+                    console.log(resp.request);
+                    dataH = resp.request;
+                    dataD = resp.requestDetail;
 
-                $.each(dataH, function(name, val) {
-                    var $el = $('[name="' + name + '"]'),
-                        type = $el.attr('type');
-                    switch (type) {
-                        case 'checkbox':
-                            $el.filter('[value="' + val + '"]').attr('checked', 'checked');
-                            break;
-                        case 'radio':
-                            $el.filter('[value="' + val + '"]').attr('checked', 'checked');
-                            break;
-                        default:
-                            $el.val(val);
-                            console.log(val);
-                    }
-                    $("#hfinTrxId").val(dataH.finTrxId).trigger("change.select2");
-                    $("#fdtReqDate").val(dateFormat(dataH.fdtReqDate)).datepicker("update");
-                });
+                    $.each(dataH, function(name, val) {
+                        var $el = $('[name="' + name + '"]'),
+                            type = $el.attr('type');
+                        switch (type) {
+                            case 'checkbox':
+                                $el.filter('[value="' + val + '"]').attr('checked', 'checked');
+                                break;
+                            case 'radio':
+                                $el.filter('[value="' + val + '"]').attr('checked', 'checked');
+                                break;
+                            default:
+                                $el.val(val);
+                                console.log(val);
+                        }
+                        $("#hfinTrxId").val(dataH.finTrxId).trigger("change.select2");
+                        $("#fdtReqDate").val(dateFormat(dataH.fdtReqDate)).datepicker("update");
+                    });
 
-                t = $('#tbl_req_detail').DataTable();
-                $.each(dataD,function(i,row){				
-                    t.row.add(row);
-                });
-                t.draw(false);
-            },
+                    t = $('#tbl_req_detail').DataTable();
+                    $.each(dataD,function(i,row){				
+                        t.row.add(row);
+                    });
+                    t.draw(false);
+                },
 
-            error: function(e) {
-                $("#result").text(e.responseText);
-                console.log("ERROR : ", e);
-            }
-        });
+                error: function(e) {
+                    $("#result").text(e.responseText);
+                    console.log("ERROR : ", e);
+                }
+            });
+        }
     }
 </script>
 

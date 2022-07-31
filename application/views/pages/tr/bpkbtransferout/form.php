@@ -125,7 +125,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
                         <div class="form-group">
                             <label for="fdbDaysToWarehouse" class="col-md-2 control-label"><?=lang("Days To Warehouse")?></label>
 							<div class="col-md-3">
-								<input type="text" class="form-control" id="fdbDaysToWarehouse" name="fdbDaysToWarehouse" style="width:50px" value="0"/>
+								<input type="text" class="form-control" id="fdbDaysToWarehouse" name="fdbDaysToWarehouse" style="width:50px" value="1"/>
 								<div id="fdbDaysToWarehouse_err" class="text-danger"></div>
 							</div>
 							<label class="col-md-1 control-label" style="text-align:left;padding-left:0px"><?=lang("Days")?> </label>
@@ -198,27 +198,33 @@ defined('BASEPATH') or exit('No direct script access allowed');
             </div>
         </div>
     </div>
-    <script type="text/javascript">
+    <script type="text/javascript" info="define">
         var action = '<a class="btn-edit" href="#" data-toggle="" data-original-title="" title=""><i class="fa fa-pencil"></i></a>&nbsp; <a class="btn-delete" href="#" data-toggle="confirmation" data-original-title="" title=""><i class="fa fa-trash"></i></a>';
-        var selected_items;
-
         var mdlOutDetail = {
-            show:function(data){
-                mdlOutDetail.clear();
-                console.log(data);
-                //alert(data.dfstBpkbNo);
-
-                if (typeof(data) == "undefined"){
+            selectedDetail:null,
+            show:function(){
+                if (mdlOutDetail.selectedDetail != null){
+					var data = mdlOutDetail.selectedDetail.data();
+                    console.log(data);
+                    if (typeof(data) == "undefined"){
+                        $("#mdlOutDetail").modal("show");
+                        selectedDetail = null;					
+                        return;
+                    }
+                    $('#fstBpkbNo').prop('readonly', true);
+                    $("#finRecId").val(data.finRecId);
+                    $("#fstBpkbNo").val(data.fstBpkbNo);
+                    $("#fstNotes").val(data.fstNotes);							
+                    $("#mdlOutDetail").modal({
+                        backdrop:"static",
+                    });
+                }else{
+                    mdlOutDetail.clear();
+                    $('#fstBpkbNo').prop('readonly', false);
                     $("#mdlOutDetail").modal("show");
-                    selecteddetail = null;					
+                    selectedDetail = null;					
                     return;
                 }
-                $("#finRecId").val(data.finRecId);
-                $("#fstBpkbNo").val(data.fstBpkbNo);
-                $("#fstNotes").val("");							
-                $("#mdlOutDetail").modal({
-                    backdrop:"static",
-                });
                 
 
             },
@@ -238,16 +244,22 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
             $("#btn-add-out-detail").click(function(event) {
                 event.preventDefault();
-                $("#mdlOutDetail").modal('show');
+                //$("#mdlOutDetail").modal('show');
+                mdlOutDetail.show();
             });
 
             $("#btn-add-out").click(function(event) {
                 event.preventDefault();
+                var mode="new";
+                if (mdlOutDetail.selectedDetail != null){
+					mode= "update";
+                }
                 var dataPost = {
                     [SECURITY_NAME]:SECURITY_VALUE,
                     "fstBpkbNo": $("#fstBpkbNo").val(),
                     "finWarehouseId":$("#finFromWarehouseId").val(),
                     "fstReqNo":$("#fstReqNo").val(),
+                    "mode": mode,
                 };
                 t = $('#tbl_out_detail').DataTable();
                 addRow = true;
@@ -263,7 +275,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
                     console.log(data);
                     var valid = true;
                     $.each(data, function(i, v) {
-                        if (v.fstBpkbNo == bpkb) {
+                        if (v.fstBpkbNo == bpkb && mode != "update") {
                             $("#fstBpkbNo_err").html("BPKB No is already exist!");
                             $("#fstBpkbNo_err").show();
                             addRow = false;
@@ -290,12 +302,24 @@ defined('BASEPATH') or exit('No direct script access allowed');
                         }
 
                         if (resp.status == "VALID"){
-                            t.row.add({
-                                finRecId: 0,
-                                fstBpkbNo: bpkb,
-                                fstNotes: notes,
-                                action: action
-                            }).draw(false);
+
+                            if(mode == "update"){
+                                //t.row(mdlDetailBOMWO.selectedDetail).data(data);
+                                t.row(mdlOutDetail.selectedDetail).data({
+                                    finRecId: 0,
+                                    fstBpkbNo: bpkb,
+                                    fstNotes: notes,
+                                    action: action
+                                }).draw(false);
+                            }else{
+                                //tblBOMWO.row.add(data);
+                                t.row.add({
+                                    finRecId: 0,
+                                    fstBpkbNo: bpkb,
+                                    fstNotes: notes,
+                                    action: action
+                                }).draw(false);
+                            }
                             mdlOutDetail.hide();
                         }
                     }
@@ -339,7 +363,8 @@ defined('BASEPATH') or exit('No direct script access allowed');
                     "title": "<?= lang("Action ") ?>",
                     "width": "5%",
                     render: function(data, type, row) {
-                        action = "<a class='btn-delete-out-detail edit-mode' href='#'><i class='fa fa-trash'></i></a>&nbsp;";
+                        var action = '<a class="btn-edit" href="#" data-original-title="" title=""><i class="fa fa-pencil"></i></a>';
+						action += "<a class='btn-delete-out-detail edit-mode' href='#'><i class='fa fa-trash'></i></a>&nbsp;";
                         return action;
                     },
                     "sortable": false,
@@ -353,7 +378,13 @@ defined('BASEPATH') or exit('No direct script access allowed');
                 // other options
             });	
 
-        })
+        }).on('click','.btn-edit',function(e){
+            e.preventDefault();
+            t = $("#tbl_out_detail").DataTable();
+			var trRow = $(this).parents('tr');
+			mdlOutDetail.selectedDetail = t.row(trRow);						
+			mdlOutDetail.show();
+        });
 
         $("#tbl_out_detail").on("click", ".btn-delete-out-detail", function(event) {
             event.preventDefault();
@@ -501,7 +532,9 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
         $("#btn-add-detail").click(function(event){
 			event.preventDefault();
+            mdlOutDetail.selectedDetail = null;
 			mdlOutDetail.show();
+            //$("#mdlOutDetail").modal('show');
 		});
 
         $("#finTransferType").change(function(event){

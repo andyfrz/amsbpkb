@@ -2,6 +2,31 @@
 defined('BASEPATH') or exit('No direct script access allowed');
 ?>
 <script src="<?=base_url()?>bower_components/jquery/jquery.md5.js"></script>
+<style type="text/css">
+	.border-0{
+		border: 0px;
+	}
+	td{
+		padding: 2px; !important 		
+	}
+    .nav-tabs-custom>.nav-tabs>li.active>a{
+        font-weight:bold;
+        border-left-color: #3c8dbc;
+        border-right-color: #3c8dbc;
+        border-style:fixed;
+    }
+    .nav-tabs-custom>.nav-tabs{
+        border-bottom-color: #3c8dbc;        
+        border-bottom-style:fixed;
+    }
+	.form-group{
+		margin-bottom: 5px;
+	}
+	.checkbox label, .radio label {
+		font-weight:700;
+	}
+</style>
+
 <section class="content-header">
     <h1><?= lang("Sales TRX") ?><small><?= lang("") ?></small></h1>
     <ol class="breadcrumb">

@@ -52,11 +52,11 @@ class Bpkbob extends MY_Controller
             ['title' => 'Chasis No', 'width' => '10%', 'data' => 'fstChasisNo'],
             ['title' => 'Brand', 'width' => '10%', 'data' => 'fstBrandName'],
             ['title' => 'Colour', 'width' => '5%', 'data' => 'fstColourName'],
-			['title' => 'Action', 'width' => '15%', 'sortable' => false, 'className' => 'text-center',
+			['title' => 'Action', 'width' => '10%', 'sortable' => false, 'className' => 'text-center',
 			'render'=>"function(data,type,row){
 				action = '<div style=\"font-size:16px\">';
-				action += '<a class=\"btn-edit\" href=\"".site_url()."trx/bpkbob/edit/' + row.finId + '\" data-id=\"\"><i class=\"fa fa-pencil\"></i></a>&nbsp;';
-				action += '<a class=\"btn-delete\" href=\"#\" data-id=\"\" data-toggle=\"confirmation\" ><i class=\"fa fa-trash\"></i></a>';
+				action += '<a class=\"btn-edit\" href=\"".site_url()."trx/bpkbob/edit/' + row.finId + '\" data-id=\"\"><i class=\"fa fa-pencil-square-o\"></i></a>&nbsp;';
+				//action += '<a class=\"btn-delete\" href=\"#\" data-id=\"\" data-toggle=\"confirmation\" ><i class=\"fa fa-trash\"></i></a>';
 				action += '<div>';
 				return action;
 			}"
@@ -273,13 +273,24 @@ class Bpkbob extends MY_Controller
 
 	public function fetch_list_data()
 	{
+		$user = $this->aauth->user();
+        $activeDealer = $user->fstDealerCode;
 		$this->load->library("datatables");
-        $this->datatables->setTableName("(
-            SELECT a.*,b.fstBrandName,c.fstColourName
-            FROM trbpkb a LEFT JOIN tbbrandtypes b ON a.finBrandTypeId = b.finBrandTypeId
-            LEFT JOIN tbcolours c ON a.fstColourCode = c.fstColourCode
-            WHERE a.fstBpkbStatus ='OB_CHECKIN' ORDER BY a.fdtBpkbDate DESC
-        ) a");
+		if ($activeDealer != ""){
+			$this->datatables->setTableName("(
+				SELECT a.*,b.fstBrandName,c.fstColourName
+				FROM trbpkb a LEFT JOIN tbbrandtypes b ON a.finBrandTypeId = b.finBrandTypeId
+				LEFT JOIN tbcolours c ON a.fstColourCode = c.fstColourCode
+				WHERE a.fstBpkbStatus ='OB_CHECKIN' AND a.fstDealerCode ='$activeDealer' ORDER BY a.fdtBpkbDate DESC
+			) a");
+		}else{
+			$this->datatables->setTableName("(
+				SELECT a.*,b.fstBrandName,c.fstColourName
+				FROM trbpkb a LEFT JOIN tbbrandtypes b ON a.finBrandTypeId = b.finBrandTypeId
+				LEFT JOIN tbcolours c ON a.fstColourCode = c.fstColourCode
+				WHERE a.fstBpkbStatus ='OB_CHECKIN' ORDER BY a.fdtBpkbDate DESC
+			) a");
+		}
 
 		$selectFields = "finId,fstBpkbNo,fdtBpkbDate,fstDealerCode,fstCustomerName,fstEngineNo,fstChasisNo,fstBrandName,fstColourName,'action' as action";
 		$this->datatables->setSelectFields($selectFields);

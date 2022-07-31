@@ -52,8 +52,8 @@ class Bpkbtransferin extends MY_Controller
 			['title' => 'Action', 'width' => '7%', 'sortable' => false, 'className' => 'text-center',
 			'render'=>"function(data,type,row){
 				action = '<div style=\"font-size:16px\">';
-				action += '<a class=\"btn-edit\" href=\"".site_url()."trx/bpkbtransferin/edit/' + row.fstTransferInNo + '\" data-id=\"\"><i class=\"fa fa-pencil\"></i></a>&nbsp;';
-				action += '<a class=\"btn-delete\" href=\"#\" data-id=\"\" data-toggle=\"confirmation\" ><i class=\"fa fa-trash\"></i></a>';
+				action += '<a class=\"btn-edit\" href=\"".site_url()."trx/bpkbtransferin/edit/' + row.fstTransferInNo + '\" data-id=\"\"><i class=\"fa fa-pencil-square-o\"></i></a>&nbsp;';
+				//action += '<a class=\"btn-delete\" href=\"#\" data-id=\"\" data-toggle=\"confirmation\" ><i class=\"fa fa-trash\"></i></a>';
 				action += '<div>';
 				return action;
 			}"

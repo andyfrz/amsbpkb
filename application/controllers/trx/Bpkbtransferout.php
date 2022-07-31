@@ -78,8 +78,8 @@ class Bpkbtransferout extends MY_Controller
 			['title' => 'Action', 'width' => '7%', 'sortable' => false, 'className' => 'text-center',
 			'render'=>"function(data,type,row){
 				action = '<div style=\"font-size:16px\">';
-				action += '<a class=\"btn-edit\" href=\"".site_url()."trx/bpkbtransferout/edit/' + row.fstTransferOutNo + '\" data-id=\"\"><i class=\"fa fa-pencil\"></i></a>&nbsp;';
-				action += '<a class=\"btn-delete\" href=\"#\" data-id=\"\" data-toggle=\"confirmation\" ><i class=\"fa fa-trash\"></i></a>';
+				action += '<a class=\"btn-edit\" href=\"".site_url()."trx/bpkbtransferout/edit/' + row.fstTransferOutNo + '\" data-id=\"\"><i class=\"fa fa-pencil-square-o\"></i></a>&nbsp;';
+				//action += '<a class=\"btn-delete\" href=\"#\" data-id=\"\" data-toggle=\"confirmation\" ><i class=\"fa fa-trash\"></i></a>';
 				action += '<div>';
 				return action;
 			}"
@@ -434,32 +434,33 @@ class Bpkbtransferout extends MY_Controller
         $fstBpkbNo = $this->input->post("fstBpkbNo");
         $finWarehouseId = $this->input->post("finWarehouseId");
         $fstReqNo = $this->input->post("fstReqNo");
+        $mode = $this->input->post("mode");
 
         $this->load->model('trbpkbtransferout_model');
 		$data = $this->trbpkbtransferout_model->getBpkbNo($fstBpkbNo);
 		$bpkb = $data["bpkb"];
 		if (!$bpkb) {
 			$this->ajxResp["status"] = "DATA_NOT_FOUND";
-			$this->ajxResp["message"] = "BPKB No $fstBpkbNo Not Found ";
+			$this->ajxResp["message"] = "BPKB No $fstBpkbNo tidak ketemu !!! ";
 			$this->ajxResp["data"] = [];
 			$this->json_output();
 			return;
 		}else{
             $warehouse = $this->trbpkbtransferout_model->cekWarehouse($fstBpkbNo,$finWarehouseId);
             $warehousebpkb = $warehouse["warehousebpkb"];
-            if (!$warehousebpkb) {
+            if ($warehousebpkb->fdbSisa == 0) {
                 $this->ajxResp["status"] = "NOT VALID";
-                $this->ajxResp["message"] = "Warehouse Not Match";
+                $this->ajxResp["message"] = "Tidak tersedia digudang terpilih!!!";
                 $this->ajxResp["data"] = [];
                 $this->json_output();
                 return;
-            }else if($fstReqNo !='' OR $fstReqNo != null){
+            }else if(($fstReqNo !='' OR $fstReqNo != null) && $mode != 'update'){
                 $this->load->model('Trbpkbrequest_detail_model');
                 $request = $this->Trbpkbrequest_detail_model->cekbpkb($fstBpkbNo,$fstReqNo);
                 $requestbpkb = $request["requestbpkb"];
                 if(!$requestbpkb){
                     $this->ajxResp["status"] = "NOT VALID";
-                    $this->ajxResp["message"] = "Check BPKB Request";
+                    $this->ajxResp["message"] = "Check BPKB Request !!!";
                     $this->ajxResp["data"] = [];
                     $this->json_output();
                     return;

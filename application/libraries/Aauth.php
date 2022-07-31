@@ -89,6 +89,8 @@ class Aauth {
 		//Cek privileges by id
 		$ssql ="SELECT * FROM usergroupprivileges where fin_user_id = ? and fst_menu_name = ? and fst_active ='A'";
 		$qr = $this->CI->db->query($ssql,[$user->fstUserCode,$permission_name]);
+		//echo $this->CI->db->last_query();
+		//die();
 		$rw = $qr->row();
 		if ($rw != null){
 			switch($mode){
@@ -113,9 +115,11 @@ class Aauth {
 			}
 		}else{
 			//cek privileges by group
-			$privilegesGroup = $user->fst_privilege_group;
-			$ssql ="SELECT * FROM usergroupprivileges where fst_privilege_group = ? and fst_menu_name = ? and fst_active ='A'";
-			$qr = $this->CI->db->query($ssql,[$privilegesGroup,$permission_name]);
+			//$privilegesGroup = $user->fst_privilege_group;
+			$ssql ="SELECT * FROM usergroupprivileges where fst_privilege_group !='admin' and fst_menu_name = ? and fst_active ='A'";
+			$qr = $this->CI->db->query($ssql,[$permission_name]);
+			//echo $this->CI->db->last_query();
+			//die();
 			$rw = $qr->row();
 			if ($rw != null){
 				switch($mode){

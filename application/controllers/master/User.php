@@ -8,6 +8,7 @@ class User extends MY_Controller
 	{
 		parent::__construct();
 		$this->load->library('form_validation');
+		$this->load->model('msdealers_model');
 	}
 
 	public function index()
@@ -117,6 +118,7 @@ class User extends MY_Controller
 		$this->load->model('users_model');
 		$this->form_validation->set_rules($this->users_model->getRules("ADD", ""));
 		$this->form_validation->set_error_delimiters('<div class="text-danger">* ', '</div>');
+		$fstDealerCode = $this->input->post("fstDealerCode");
 
 		if ($this->form_validation->run() == FALSE) {
 			//print_r($this->form_validation->error_array());
@@ -134,8 +136,15 @@ class User extends MY_Controller
 			"fstEmail" => $this->input->post("fstEmail"),
 			"fstMobileNo" => $this->input->post("fstMobileNo"),
 			"fblIsAdmin" => $this->input->post("fblIsAdmin") == null? 0:1,
+			//"fstDealerCode" => $this->input->post("fstDealerCode"),
 			"fst_active" => 'A'
 		];
+
+		if ($fstDealerCode !='' || $fstDealerCode != null){
+			$data["fstDealerCode"] = $fstDealerCode;
+		}else {
+			$data["fstDealerCode"] = '';
+		}
 
 		$this->db->trans_start();
 		$insertId = $this->users_model->insert($data);
@@ -210,6 +219,7 @@ class User extends MY_Controller
 	{
 		parent::ajx_edit_save();
 		$this->load->model('users_model');
+		$fstDealerCode = $this->input->post("fstDealerCode");
 		$fstUserCode = $this->input->post('fstUserCode');
 		$data = $this->users_model->getDataById($fstUserCode);
 		$user = $data["user"];
@@ -238,9 +248,14 @@ class User extends MY_Controller
 			"fstEmail" => $this->input->post("fstEmail"),
 			"fstMobileNo" => $this->input->post("fstMobileNo"),
 			"fblIsAdmin" => $this->input->post("fblIsAdmin") == null? 0:1,
+			//"fstDealerCode" => $this->input->post("fstDealerCode"),
 			"fst_active" => 'A'
 		];
-
+		if ($fstDealerCode !='' || $fstDealerCode != null){
+			$data["fstDealerCode"] = $fstDealerCode;
+		}else {
+			$data["fstDealerCode"] = '';
+		}
 		$this->db->trans_start();
 
 		$this->users_model->update($data);

@@ -51,6 +51,15 @@ class Trbpkbob_model extends MY_Model
         }
 
         $rules[] = [
+            'field' => 'fdtBpkbDate',
+            'label' => 'BPKB Date',
+            'rules' => 'required',
+            'errors' => array(
+                'required' => '%s tidak boleh kosong'
+            )
+        ];
+
+        $rules[] = [
             'field' => 'fstCustomerName',
             'label' => 'Customer',
             'rules' => 'required',
@@ -58,6 +67,7 @@ class Trbpkbob_model extends MY_Model
                 'required' => '%s tidak boleh kosong'
             )
         ];
+
         $rules[] = [
             'field' => 'fstNik',
             'label' => 'NIK',

@@ -363,6 +363,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
                             $el.val(val);
                             console.log(val);
                     }
+                    $("#fdtBpkbDate").val(dateFormat(resp.bpkb.fdtBpkbDate)).datepicker("update");
                 });
             },
 

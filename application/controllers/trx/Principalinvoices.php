@@ -232,15 +232,30 @@ class Principalinvoices extends MY_Controller
 
 	public function fetch_list_data()
 	{
+		$user = $this->aauth->user();
+        $activeDealer = $user->fstDealerCode;
 		$this->load->library("datatables");
-        $this->datatables->setTableName("(
-            SELECT a.*,b.fstDealerCode,b.fstSPKNo,b.fdtSalesDate,b.fstCustomerName,b.fstNik,b.fstLeasingCode,b.finBrandTypeId,b.fstColourCode,b.fstEngineNo,b.fstChasisNo,b.fstSalesName,c.fstBrandName,d.fstColourName
-            FROM trprincipalinvoices a 
-            LEFT JOIN trsalestrx b ON a.finSalesTrxId = b.finSalesTrxId
-            LEFT JOIN tbbrandtypes c ON b.finBrandTypeId = c.finBrandTypeId
-            LEFT JOIN tbcolours d ON b.fstColourCode = d.fstColourCode
-            ORDER BY fdtCheckinDate DESC
-        ) a");
+		if ($activeDealer !=""){
+			$this->datatables->setTableName("(
+				SELECT a.*,b.fstDealerCode,b.fstSPKNo,b.fdtSalesDate,b.fstCustomerName,b.fstNik,b.fstLeasingCode,b.finBrandTypeId,b.fstColourCode,b.fstEngineNo,b.fstChasisNo,b.fstSalesName,c.fstBrandName,d.fstColourName
+				FROM trprincipalinvoices a 
+				LEFT JOIN trsalestrx b ON a.finSalesTrxId = b.finSalesTrxId
+				LEFT JOIN tbbrandtypes c ON b.finBrandTypeId = c.finBrandTypeId
+				LEFT JOIN tbcolours d ON b.fstColourCode = d.fstColourCode
+				WHERE b.fstDealerCode ='$activeDealer'
+				ORDER BY fdtCheckinDate DESC
+			) a");
+		}else{
+			$this->datatables->setTableName("(
+				SELECT a.*,b.fstDealerCode,b.fstSPKNo,b.fdtSalesDate,b.fstCustomerName,b.fstNik,b.fstLeasingCode,b.finBrandTypeId,b.fstColourCode,b.fstEngineNo,b.fstChasisNo,b.fstSalesName,c.fstBrandName,d.fstColourName
+				FROM trprincipalinvoices a 
+				LEFT JOIN trsalestrx b ON a.finSalesTrxId = b.finSalesTrxId
+				LEFT JOIN tbbrandtypes c ON b.finBrandTypeId = c.finBrandTypeId
+				LEFT JOIN tbcolours d ON b.fstColourCode = d.fstColourCode
+				ORDER BY fdtCheckinDate DESC
+			) a");
+		}
+
 
 		$selectFields = "finId,fstDealerCode,fstSPKNo,fdtSalesDate,fstNik,fstCustomerName,fstLeasingCode,fstEngineNo,fstChasisNo,fstBrandName,fstColourName,fdtCheckinDate,fstPrincipalInvoiceStatus,'action' as action";
 		$this->datatables->setSelectFields($selectFields);

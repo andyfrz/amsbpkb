@@ -11,7 +11,7 @@ class Login extends CI_Controller
 		$username = $this->input->post("username");
 		$password = $this->input->post("password");
 		if ($username != "") {
-			$ssql = "SELECT * FROM tbusers  where fstUserCode = ?";
+			$ssql = "SELECT * FROM tbusers  WHERE fstUserCode = ?";
 
 			$query = $this->db->query($ssql, [$username]);
 			//echo $this->db->last_query();
