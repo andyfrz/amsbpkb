@@ -168,12 +168,144 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 	</script>
 </div>
 
-<?php echo $mdlPrint ?>
-<?php
-	if(isset($jsfile)){
-		echo $jsfile;
-	}
-?>
+<div id="MdlEditCheckin" class="modal" role="dialog">
+	<div class="modal-dialog" style="display:table;width:650px">
+		<!-- Modal content-->
+		<div class="modal-content" style="border-top-left-radius:15px;border-top-right-radius:15px;border-bottom-left-radius:15px;border-bottom-right-radius:15px;">
+			<div class="modal-header" style="padding:15px;background-color:#3c8dbc;color:#ffffff;border-top-left-radius: 15px;border-top-right-radius: 15px;">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title"><?= lang("EDIT BPKB Checkin") ?></h4>
+			</div>
+			<div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" >
+                        <div style="border:1px inset #f0f0f0;border-radius:10px;padding:1px">
+                            <fieldset style="padding:10px">
+                                <form class="form-horizontal ">
+									<input type='hidden' id='finId'/>
+                                    <div class="form-group">
+										<label for="efstBpkbNo" class="col-md-3 control-label"><?=lang("BPKB No")?></label>
+										<div class="col-md-9">
+											<input id="efstBpkbNo" class="form-control"></input>
+											<div id="efstBpkbNo_err" class="text-danger"></div>
+										</div>
+									</div>
+									<div class="form-group">
+									<label for="efdtBpkbDate" class="col-md-3 control-label"><?= lang("BPKB Date") ?></label>
+										<div class="col-md-9">
+											<div class="input-group date">
+												<div class="input-group-addon">
+													<i class="fa fa-calendar"></i>
+												</div>
+												<input type="text" class="form-control datepicker" id="efdtBpkbDate" name="efdtBpkbDate"/>
+											</div>
+											<div id="efdtBpkbDate_err" class="text-danger"></div>
+											<!-- /.input group -->
+										</div>
+									</div>
+                                    <div class="form-group">
+										<label for="efstInfo" class="col-md-3 control-label"><?=lang("Note")?></label>
+										<div class="col-md-9">
+											<textarea type="text" class="form-control" id="efstInfo" rows="3"></textarea>
+										</div>
+									</div>
+                                </form>
+								<div class="modal-footer">
+									<button id="btnEditCheckin" type="button" class="btn btn-primary btn-sm text-center" style="width:15%"><?=lang("Edit Checkin")?></button>
+									<button type="button" class="btn btn-default btn-sm text-center" style="width:15%" data-dismiss="modal"><?=lang("Close")?></button>
+								</div>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+            </div>
+		</div>
+	</div>
+	<script type="text/javascript">
+
+		var mdlEditCheckin = {
+			show:function(data){
+				mdlEditCheckin.clear();
+				console.log(data);
+				//alert(data.finId);
+				if (typeof(data) == "undefined"){
+					$("#mdlEditCheckin").modal("show");			
+					return;
+				}
+				$("#finId").val(data.finId);
+				$("#efstBpkbNo").val(data.fstBpkbNo);			
+				$("#efdtBpkbDate").val(data.fdtBpkbDate);
+				$('#efstInfo').val(data.fstInfo);							
+				$("#mdlEditCheckin").modal({
+					backdrop:"static",
+				});
+
+			},
+			hide:function(){
+				$("#mdlEditCheckin").modal("hide");
+			},
+			clear:function(){
+				$("#finId").val(0);
+				$("#efstBpkbNo").val("");
+				$("#efdtBpkbDate").val("");
+				$("#efstInfo").val("");
+			},			
+		};
+
+		$(function(){
+			$("#btnEditCheckin").click(function(event){
+				event.preventDefault();
+				var dataPost = {
+					[SECURITY_NAME]:SECURITY_VALUE,
+					"finId": $("#finId").val(),
+					"fstBpkbNo":$("#efstBpkbNo").val(),
+					"fdtBpkbDate":$("#efdtBpkbDate").val(),
+					"fstInfo":$("#efstInfo").val(),
+				};
+				$.ajax({			
+					url:"<?=$ajx_edit_checkin?>",
+					method:"POST",
+					data:dataPost,
+					success:function(resp){
+						if (resp.message != "")	{
+							$.alert({
+								title: 'Message',
+								content: resp.message,
+								buttons : {
+									OK : function(){
+										if(resp.status == "SUCCESS"){
+											mdlEditCheckin.hide();
+											return;
+										}
+									},
+								}
+							});
+						}
+						if(resp.status == "VALIDATION_FORM_FAILED" ){
+							//Show Error
+							errors = resp.data;
+							for (key in errors) {
+								$("#"+key+"_err").html(errors[key]);
+							}
+						}else if(resp.status == "SUCCESS") {
+							data = resp.data;
+							$("#finId").val(data.insert_id);
+							//Clear all previous error
+							$(".text-danger").html("");					
+						}
+					},
+					error: function (e) {
+						$("#result").text(e.responseText);
+						$("#btnSubmit").prop("disabled", false);
+					},
+				}).always(function(){	
+
+				});				
+			});
+		});
+
+	</script>
+</div>
 
 <script type="text/javascript">
 	
@@ -224,6 +356,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 			var trRow = $(this).parents('tr');
 			selectedDetail  = t.row(trRow);
 			var data = t.row(trRow).data();
+			$("#frm-mode").val("ADD");
 			//mdlAddItems.show(data);
             //alert(data.finSalesTrxId);
             ischeckin(data.finSalesTrxId);		
@@ -291,7 +424,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 					//t.row(trRow).remove().draw(false); //refresh ajax
 					//trRow.remove(); //no refresh ajax
                     //$("#MdlCheckin").modal("show");
-					mdlCheckin.show(id);
+					mode = "ADD";
+					mdlCheckin.show(id,mode);
 				}
 			}
 		})
@@ -314,6 +448,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <fieldset style="padding:10px">
                                 <form class="form-horizontal ">
 									<input type='hidden' id='finSalesTrxId'/>
+									<input type="hidden" id="frm-mode" value="">
+									<input type='hidden' id='finId'/>
                                     <div class="form-group">
 										<label for="cfstBpkbNo" class="col-md-3 control-label"><?=lang("BPKB No")?></label>
 										<div class="col-md-9">
@@ -353,26 +489,55 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		</div>
 	</div>
 	<script type="text/javascript">
+
+		function formatDate(date) {
+			var d = new Date(date),
+				month = '' + (d.getMonth() + 1),
+				day = '' + d.getDate(),
+				year = d.getFullYear();
+
+			if (month.length < 2) month = '0' + month;
+			if (day.length < 2) day = '0' + day;
+
+			return [day, month, year].join('-');
+		}
 		var selected_items;
-
 		var mdlCheckin = {
-			show:function(id){
-				mdlCheckin.clear();
-				console.log(id);
-				//alert(id);
+			show:function(data,mode){
+				if (mode == "ADD"){
+					mdlCheckin.clear();
+					console.log(data);
+					//alert("ADD YA");
+					if (typeof(data) == "undefined"){
+						$("#MdlCheckin").modal("show");				
+						return;
+					}
+					$("#finSalesTrxId").val(data);
+					$("#cfstBpkbNo").val("");			
+					$("#cfdtBpkbDate").val("");
+					$('#cfstInfo').val("");								
+					$("#MdlCheckin").modal({
+						backdrop:"static",
+					});
+				}else{
+					mdlCheckin.clear();
+					console.log(data);
+					//alert("EDIT YA");
+					if (typeof(data) == "undefined"){
+						$("#MdlCheckin").modal("show");				
+						return;
+					}
 
-				if (typeof(id) == "undefined"){
-					$("#MdlCheckin").modal("show");				
-					return;
+					var fdtBpkbDate = formatDate(data.fdtBpkbDate);
+					$("#finId").val(data.finId);
+					$("#cfstBpkbNo").val(data.fstBpkbNo);			
+					$("#cfdtBpkbDate").val(fdtBpkbDate);
+					$('#cfstInfo').val(data.fstInfo);								
+					$("#MdlCheckin").modal({
+						backdrop:"static",
+					});
 				}
-				$("#finSalesTrxId").val(id);
-				$("#cfstBpkbNo").val("");			
-				$("#cfdtBpkbDate").val("");
-				$('#cfstInfo').val("");								
-				$("#MdlCheckin").modal({
-					backdrop:"static",
-				});
-				
+
 
 			},
 			hide:function(){
@@ -389,18 +554,32 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 			}			
 		};
 
+
 		$(function(){
 			$("#btnCheckin").click(function(event){
 				event.preventDefault();
-				var dataPost = {
-					[SECURITY_NAME]:SECURITY_VALUE,
-					"finSalesTrxId": $("#finSalesTrxId").val(),
-					"fstBpkbNo":$("#cfstBpkbNo").val(),
-					"fdtBpkbDate":$("#cfdtBpkbDate").val(),
-					"fstInfo":$("#cfstInfo").val(),
-				};
+				//alert($("#frm-mode").val());
+				if ($("#frm-mode").val() == "ADD"){
+					var dataPost = {
+						[SECURITY_NAME]:SECURITY_VALUE,
+						"finSalesTrxId": $("#finSalesTrxId").val(),
+						"fstBpkbNo":$("#cfstBpkbNo").val(),
+						"fdtBpkbDate":$("#cfdtBpkbDate").val(),
+						"fstInfo":$("#cfstInfo").val(),
+					};
+					var url = "<?=$checkin_ajax_url?>";
+				}else{
+					var dataPost = {
+						[SECURITY_NAME]:SECURITY_VALUE,
+						"finId": $("#finId").val(),
+						"fstBpkbNo":$("#cfstBpkbNo").val(),
+						"fdtBpkbDate":$("#cfdtBpkbDate").val(),
+						"fstInfo":$("#cfstInfo").val(),
+					};
+					var url = "<?=$ajx_edit_checkin?>";
+				}
 				$.ajax({			
-					url:"<?=$checkin_ajax_url?>",
+					url:url,
 					method:"POST",
 					data:dataPost,
 					success:function(resp){
@@ -411,7 +590,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 								buttons : {
 									OK : function(){
 										if(resp.status == "SUCCESS"){
-											mdlCheckin.clear();
+											mdlCheckin.hide();
+											$('#dtblList').DataTable().ajax.reload();
 											return;
 										}
 									},
@@ -516,6 +696,20 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 			deleteAjax(id,false);			
 		});
 
+		$("#dtblList").on("click",".btn-edit",function(event){
+
+			event.preventDefault();
+			t = $("#dtblList").DataTable();
+			var trRow = $(this).parents('tr');
+			selectedDetail  = t.row(trRow);
+			var data = t.row(trRow).data();
+			id = data.finId;
+			$("#frm-mode").val("EDIT");
+			//mdlCheckin.show(data);
+            //alert(id);
+			isnotcheckin(id,data);				
+		});
+
         $("#btnNew").click(function(e){
 			e.preventDefault();
 			mdlBpkb.show();
@@ -523,6 +717,30 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		});
 
 	});
+
+	function isnotcheckin(id,data){
+		var dataSubmit = [];
+		dataSubmit.push({
+			name : SECURITY_NAME,
+			value: SECURITY_VALUE,
+		});
+
+		$.ajax({			
+			url:"<?=$isnotcheckin?>" + id,
+			method:"POST",
+			data:dataSubmit,
+			success:function(resp){
+				if (resp.message != ""){
+					alert(resp.message);
+				}
+
+				if (resp.status == "READY"){
+					mode = "EDIT";
+					mdlCheckin.show(data,mode);
+				}
+			}
+		})
+	}
 
 	function deleteAjax(id,confirmDelete){
 		var dataSubmit = [];

@@ -118,8 +118,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 			show:function(data){
 				mdlInvoice.clear();
 				console.log(data);
-
-
 				if (typeof(data) == "undefined"){
 					$("#MdlPrincipalInvoice").modal("show");					
 					return;
@@ -127,14 +125,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 				$("#MdlPrincipalInvoice").modal({
 					backdrop:"static",
 				});
-				
-
 			},
 			hide:function(){
 				$("#MdlPrincipalInvoice").modal("hide");
 			},
 			clear:function(){
-				
 				$("#fstCustomerName").val("");
 				$("#fstNik").val("");
 				$("#fstSPKNo").val("");
@@ -264,6 +259,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 				if (resp.status == "SUCCESS"){
 					//t.row(trRow).remove().draw(false); //refresh ajax
 					trRow.remove(); //no refresh ajax
+					$('#tblList').DataTable().ajax.reload();
 				}
 			}
 		})

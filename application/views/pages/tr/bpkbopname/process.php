@@ -86,7 +86,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
-				<h3 class="modal-title"><?= $title ?></h3>
+				<h3 class="modal-title">VIEW BPKB OPNAME</h3>
 			</div>
 			<div class="modal-body">			
 				<form id="frmBpkbOpname" class="form-horizontal" action="<?= site_url() ?>trx/bpkbopname/add" method="POST" enctype="multipart/form-data">
@@ -183,7 +183,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <script type="text/javascript">
 	
 	$(function(){
-
+		var mode = $("#frm-mode").val();
 		$("#tblOpnameDetail").DataTable({
             searching: false,
             paging: false,
@@ -205,6 +205,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         return action;
                     },
                     "sortable": false,
+					visible:false,
                     "className": "dt-body-center text-center"
                 },                  				
 			],
@@ -298,30 +299,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 			$(".dataTables_scrollHeadInner > table").css("min-width","100%");
 			$(".dataTables_scrollBody").css("position","static");
 
-			$('.btn-close').confirmation({
-				title: "<?=lang('Close Opname ?')?>",
-				rootSelector: '.btn-close',
+			$('.btn-process').confirmation({
+				title: "<?=lang('Proses Opname ?')?>",
+				rootSelector: '.btn-process',
 				// other options
 			});	
 		});
 		
-		$("#tblList").on("click",".btn-close",function(event){
+		$("#tblList").on("click",".btn-process",function(event){
             event.preventDefault();
-            closeOpname($(this));			
-		});
-
-		$("#tblList").on("click",".btn-opname",function(event){
-			event.preventDefault();			
-			t = $('#tblList').DataTable();
-			var trRow = $(this).parents('tr');
-			selectedOpname = trRow;
-			row = t.row(trRow).data();
-			if (row.fstOpnameStatus == '' || row.fstOpnameStatus == null){
-				$("#frm-mode").val("EDIT");
-				mdlOpname.show(row);
-			}else{
-				alert("Opname Closed");
-			}	
+            processOpname($(this));			
 		});
 
 		$("#tblList").on("click",".btn-view",function(event){
@@ -331,6 +318,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 			row = t.row(trRow).data();
 			//id = row.<?=$pKey?>;
             $("#frm-mode").val("VIEW");
+			mdlOpname.show(row);				
+		});
+
+		$("#tblList").on("click",".btn-view-result",function(event){
+			event.preventDefault();
+			t = $('#tblList').DataTable();
+			trRow = $(this).parents('tr');				
+			row = t.row(trRow).data();
+			//id = row.<?=$pKey?>;
+            $("#frm-mode").val("VIEW-RESULT");
 			mdlOpname.show(row);				
 		});
 
@@ -362,7 +359,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		})
 	}
 
-    function closeOpname(element){
+    function processOpname(element){
         t = $('#tblList').DataTable();
         var trRow = element.parents('tr');
         data = t.row(trRow).data(); 
@@ -373,7 +370,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
         App.blockUIOnAjaxRequest("<?=lang("Please wait .....")?>");
         $.ajax({
-            url:"<?= site_url() ?>trx/bpkbopname/closeOpname/",
+            url:"<?= site_url() ?>trx/bpkbopname/processOpname/",
             data:dataPost,
             method:"POST"
 

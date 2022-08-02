@@ -437,7 +437,15 @@ class Bpkbopname extends MY_Controller
     public function closeOpname(){
         $this->load->model('trbpkbopname_model');
         $fstOpnameNo = $this->input->post("fstOpnameNo");
-
+        $data = $this->trbpkbopname_model->isnotClosed($fstOpnameNo);
+		$notClosed = $data["notClosed"];
+		if (!$notClosed) {
+			$this->ajxResp["status"] = "CLOSED";
+			$this->ajxResp["message"] = "Opname No. $fstOpnameNo already closed !!!";
+			$this->ajxResp["data"] = [];
+			$this->json_output();
+			return;
+		}
         try{
 		
 			$this->db->trans_start();		
@@ -447,6 +455,52 @@ class Bpkbopname extends MY_Controller
 			$this->ajxResp["status"] = "SUCCESS";
 			$this->ajxResp["message"] = "";
 			$this->json_output();
+			
+		}catch(CustomException $e){
+			$this->db->trans_rollback();
+			$this->ajxResp["status"] = $e->getStatus();
+			$this->ajxResp["message"] = $e->getMessage();
+			$this->ajxResp["data"] = $e->getData();
+			$this->json_output();			
+			return;
+
+		}
+	}
+
+    public function processOpname(){
+        $this->load->model('trbpkbopname_model');
+        $fstOpnameNo = $this->input->post("fstOpnameNo");
+
+        $data = $this->trbpkbopname_model->isnotClosed($fstOpnameNo);
+		$notClosed = $data["notClosed"];
+		if ($notClosed) {
+			$this->ajxResp["status"] = "NOT_CLOSED";
+			$this->ajxResp["message"] = "Opname No. $fstOpnameNo not closed yet !!!";
+			$this->ajxResp["data"] = [];
+			$this->json_output();
+			return;
+		}
+
+        try{
+		
+			$this->db->trans_start();		
+			$this->trbpkbopname_model->processOpname($fstOpnameNo);	
+            
+            $data = $this->trbpkbopname_model->statusHeader($fstOpnameNo);
+            $rwdetails = $data["opnameDetail"];
+            if ($rwdetails){
+                $ssql = "UPDATE trbpkbopname SET fstOpnameStatus = 'DIFFERENCE' WHERE fstOpnameNo = ?";
+                $qr = $this->db->query($ssql,[$fstOpnameNo]);
+                $message = "Status DIFFERENCE";
+            }else{
+                $ssql = "UPDATE trbpkbopname SET fstOpnameStatus = 'COMPLETED' WHERE fstOpnameNo = ?";
+                $qr = $this->db->query($ssql,[$fstOpnameNo]);
+                $message = "Status COMPLETED";
+            }		
+			$this->db->trans_complete();
+            $this->ajxResp["status"] = "SUCCESS";
+            $this->ajxResp["message"] = $message;
+            $this->json_output();
 			
 		}catch(CustomException $e){
 			$this->db->trans_rollback();

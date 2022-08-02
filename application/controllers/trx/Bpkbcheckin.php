@@ -30,9 +30,10 @@ class Bpkbcheckin extends MY_Controller
         $this->list['trx_key'] = "finSalesTrxId";
 		$this->list['fetch_list_data_ajax_url'] = site_url() . 'trx/bpkbcheckin/fetch_list_data';
 		$this->list['delete_ajax_url'] = site_url() . 'trx/bpkbcheckin/delete/';
-		$this->list['edit_ajax_url'] = site_url() . 'trx/bpkbcheckin/edit/';
+		$this->list['ajx_edit_checkin'] = site_url() . 'trx/bpkbcheckin/ajx_edit_checkin/';
         $this->list['checkin_ajax_url'] = site_url() . 'trx/bpkbcheckin/checkin_trx/';
         $this->list['ischeckin'] = site_url() . 'trx/bpkbcheckin/ischeckin/';
+		$this->list['isnotcheckin'] = site_url() . 'trx/bpkbcheckin/isnotcheckin/';
 		$this->list['arrSearch'] = [
 			'fstBpkbNo' => 'BPKB No.',
 			'fstDealerCode' => 'Dealer',
@@ -55,10 +56,11 @@ class Bpkbcheckin extends MY_Controller
             ['title' => 'Chasis No', 'width' => '10%', 'data' => 'fstChasisNo'],
             ['title' => 'Brand', 'width' => '10%', 'data' => 'fstBrandName'],
             ['title' => 'Colour', 'width' => '5%', 'data' => 'fstColourName'],
+			['title' => 'Info', 'width' => '0%','visible'=>'false', 'data' => 'fstInfo'],
 			['title' => 'Action', 'width' => '10%', 'sortable' => false, 'className' => 'text-center',
                 'render'=>"function(data,type,row){
                     action = '<div style=\"font-size:16px\">';
-                    action += '<a class=\"btn-edit\" href=\"".site_url()."trx/bpkbcheckin/edit/' + row.finId + '\" data-id=\"\"><i class=\"fa fa-pencil-square-o\"></i></a>&nbsp;';
+                    action += '<a class=\"btn-edit\" href=\"#\" data-id=\"\"><i class=\"fa fa-pencil-square-o\"></i></a>&nbsp;';
                     action += '<a class=\"btn-delete\" href=\"#\" data-id=\"\" data-toggle=\"confirmation\" ><i class=\"fa fa-trash\"></i></a>';
                     action += '<div>';
                     return action;
@@ -128,7 +130,7 @@ class Bpkbcheckin extends MY_Controller
 	{
 		//parent::checkin_trx();
 		$this->load->model('trbpkbcheckin_model');
-		$this->form_validation->set_rules($this->trbpkbcheckin_model->getRules("", ""));
+		$this->form_validation->set_rules($this->trbpkbcheckin_model->getRules("ADD", ""));
 		$this->form_validation->set_error_delimiters('<div class="text-danger">* ', '</div>');
 
 		if ($this->form_validation->run() == FALSE) {
@@ -193,6 +195,8 @@ class Bpkbcheckin extends MY_Controller
             "finTrxId" => $finSalesTrxId,
 			"finWarehouseId" => $warehouse->finWarehouseId,
 			"fstTrxInfo" => $this->input->post("fstInfo"),
+			"fdbIn"=>1,
+			"fdbOut"=>0,
 			"fst_active" => 'A'
 		];
 		$this->trlog_bpkb_model->insert($log);
@@ -210,12 +214,12 @@ class Bpkbcheckin extends MY_Controller
 		$this->db->trans_complete();
 
 		$this->ajxResp["status"] = "SUCCESS";
-		$this->ajxResp["message"] = "Data Saved !";
+		$this->ajxResp["message"] = "Checkin Success !";
 		$this->ajxResp["data"]["insert_id"] = $insertId;
 		$this->json_output();
 	}
 
-	public function ajx_edit_save()
+	public function ajx_edit_checkin()
 	{
 		parent::ajx_edit_save();
 		$this->load->model('trbpkbcheckin_model');
@@ -230,7 +234,7 @@ class Bpkbcheckin extends MY_Controller
 			return;
 		}
 
-		$this->form_validation->set_rules($this->trbpkbob_model->getRules("EDIT", $finId));
+		$this->form_validation->set_rules($this->trbpkbcheckin_model->getRules("EDIT", $finId));
 		$this->form_validation->set_error_delimiters('<div class="text-danger">* ', '</div>');
 		if ($this->form_validation->run() == FALSE) {
 			//print_r($this->form_validation->error_array());
@@ -244,37 +248,24 @@ class Bpkbcheckin extends MY_Controller
 		$data = [
 			"finId" => $finId,
 			"fstBpkbNo" => $this->input->post("fstBpkbNo"),
-			"fstBpkbStatus" => 'OB_CHECKIN',
 			"fdtBpkbDate"=>dBDateFormat($this->input->post("fdtBpkbDate")),
-			"fstDealerCode" => $this->input->post("fstDealerCode"),
-            "fstCustomerName" => $this->input->post("fstCustomerName"),
-			"fstNik" => $this->input->post("fstNik"),
-			"fstNpwp" => $this->input->post("fstNpwp"),
-            "fstBrandCode" => $this->input->post("fstBrandCode"),
-			"finBrandTypeId" => $this->input->post("finBrandTypeId"),
-			"fstColourCode" => $this->input->post("fstColourCode"),
-            "fstEngineNo" => $this->input->post("fstEngineNo"),
-			"fstChasisNo" => $this->input->post("fstChasisNo"),
-			"finManufacturedYear" => $this->input->post("finManufacturedYear"),
-            "finTrxId" => $this->input->post("finTrxId"),
-			"finWarehouseId" => $this->input->post("finWarehouseId"),
 			"fstInfo" => $this->input->post("fstInfo"),
 			"fst_active" => 'A'
 		];
 
 		$this->db->trans_start();
-		$this->trbpkbob_model->update($data);
+		$this->trbpkbcheckin_model->update($data);
 
-		$log = [
+		/*$log = [
 			"fstBpkbNo" => $this->input->post("fstBpkbNo"),
-			"fstTrxSource" => 'OB_CHECKIN',
+			"fstTrxSource" => 'CHECKIN',
 			"fdtTrxDate"=> date("Y-m-d H:i:s"),
             "finTrxId" => $this->input->post("finTrxId"),
 			"finWarehouseId" => $this->input->post("finWarehouseId"),
 			"fstTrxInfo" => $this->input->post("fstInfo"),
 			"fst_active" => 'A'
 		];
-		$this->trlog_bpkb_model->insert($log);
+		$this->trlog_bpkb_model->insert($log);*/
 		
 		$dbError  = $this->db->error();
 		if ($dbError["code"] != 0) {
@@ -285,11 +276,11 @@ class Bpkbcheckin extends MY_Controller
 			$this->db->trans_rollback();
 			return;
 		}
-
+		$this->trbpkbcheckin_model->updateLogBpkb($finId);
 		$this->db->trans_complete();
 
 		$this->ajxResp["status"] = "SUCCESS";
-		$this->ajxResp["message"] = "Data Saved !";
+		$this->ajxResp["message"] = "Update Success !";
 		$this->ajxResp["data"]["insert_id"] = $finId;
 		$this->json_output();
 	}
@@ -316,7 +307,7 @@ class Bpkbcheckin extends MY_Controller
 		}
 
 
-		$selectFields = "finId,fstBpkbNo,fdtBpkbDate,fstDealerCode,fstCustomerName,fstEngineNo,fstChasisNo,fstBrandName,fstColourName,'action' as action";
+		$selectFields = "finId,fstBpkbNo,fdtBpkbDate,fstDealerCode,fstCustomerName,fstEngineNo,fstChasisNo,fstBrandName,fstColourName,fstInfo,'action' as action";
 		$this->datatables->setSelectFields($selectFields);
 
 		$Fields = $this->input->get('optionSearch');
@@ -333,6 +324,7 @@ class Bpkbcheckin extends MY_Controller
 
 			//action
 			$data["action"]	= "<div style='font-size:16px'>
+				<a class='btn-edit' href='#' data-id='" . $data["finId"] . "'><i class='fa fa-pencil-square-o'></i></a>
 				<a class='btn-delete' href='#' data-id='" . $data["finId"] . "'><i class='fa fa-trash'></i></a>
 			</div>";
 
@@ -385,6 +377,24 @@ class Bpkbcheckin extends MY_Controller
 		}else{
             $this->ajxResp["status"] = "NOT READY";
 			$this->ajxResp["message"] = "";
+			$this->ajxResp["data"] = [];
+			$this->json_output();
+        }
+	}
+	public function isnotcheckin($finId)
+	{
+		$this->load->model('trbpkbcheckin_model');
+		$data = $this->trbpkbcheckin_model->getCheckin($finId);
+		$bpkbcheckin = $data["bpkbcheckin"];
+		if ($bpkbcheckin) {
+            $this->ajxResp["status"] = "READY";
+			$this->ajxResp["message"] = "";
+			$this->ajxResp["data"] = [];
+			$this->json_output();
+			return;
+		}else{
+            $this->ajxResp["status"] = "NOT READY";
+			$this->ajxResp["message"] = "BPKB Status <> CHECKIN !!!";
 			$this->ajxResp["data"] = [];
 			$this->json_output();
         }

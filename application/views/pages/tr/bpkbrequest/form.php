@@ -87,12 +87,12 @@ defined('BASEPATH') or exit('No direct script access allowed');
                                 $dealerActive = $user->fstDealerCode;
                                 $disabledSelect = ($dealerActive == "") ? "" : "disabled";
                                 ?>
-                                <select class="form-control" id="fstDealerCode" name="fstDealerCode" <?= $disabledSelect ?>>
+                                <select class="form-control select2" id="fstDealerCode" name="fstDealerCode" <?= $disabledSelect ?>>
                                     <?php
                                         $dealerList = $this->msdealers_model->getAllList();
                                         foreach($dealerList as $dealer){
                                             $isActive = ($dealer->fstDealerCode == $dealerActive) ? "selected" : "";
-                                            echo "<option value=" . $dealer->fstDealerCode . " $isActive >" . $dealer->fstDealerName . "</option>";
+                                            echo "<option value=" . $dealer->fstDealerCode . " $isActive >" . $dealer->fstDealerCode. "-" .$dealer->fstDealerName . "</option>";
                                             //echo "<option value='$dealer->fstDealerCode'>$dealer->fstDealerName</option>";
                                         }
                                     ?>
@@ -759,6 +759,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
                                 console.log(val);
                         }
                         $("#hfinTrxId").val(dataH.finTrxId).trigger("change.select2");
+                        $("#fstDealerCode").val(dataH.fstDealerCode).trigger("change.select2");
                         $("#fdtReqDate").val(dateFormat(dataH.fdtReqDate)).datepicker("update");
                     });
 

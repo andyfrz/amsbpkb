@@ -121,7 +121,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 					<div class="form-group">
 						<label for="finWarehouseId" class="col-md-2 control-label"><?= lang("Warehouse") ?></label>
 						<div class="col-md-4">
-							<select class="form-control" id="finWarehouseId" name="finWarehouseId" style="width:100%">
+							<select class="form-control select2" id="finWarehouseId" name="finWarehouseId" style="width:100%">
 							<?php
 								$warehouseList = $this->msbpkbwarehouse_model->getAllList();
 								foreach($warehouseList as $warehouse){
@@ -473,7 +473,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		
 		$("#tblList").on("click",".btn-close",function(event){
             event.preventDefault();
-            closeOpname($(this));			
+			t = $('#tblList').DataTable();
+			var trRow = $(this).parents('tr');
+			selectedOpname = trRow;
+			row = t.row(trRow).data();
+			if (row.fstOpnameStatus == '' || row.fstOpnameStatus == null){
+				closeOpname($(this));
+			}else{
+				alert("already Closed");
+			}
+            			
 		});
 
 		$("#tblList").on("click",".btn-opname",function(event){
@@ -486,7 +495,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 				$("#frm-mode").val("EDIT");
 				mdlOpname.show(row);
 			}else{
-				alert("Opname Closed");
+				alert("already Closed");
 			}	
 		});
 
@@ -724,7 +733,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 					});
 
 					$("#fdtOpnameStartDate").val(dateTimeFormat(dataH.fdtOpnameStartDate)).datetimepicker("update");
-					//$("#fdtOpnameStartDate").val(dateTimeFormat("<?= date("Y-m-d H:i:s")?>")).datetimepicker("update");
+					//$("#fdtOpnameStartDate").val(dateTimeFormat("<= date("Y-m-d H:i:s")?>")).datetimepicker("update");
+					$('#finWarehouseId').val(dataH.finWarehouseId).trigger('change.select2');
 
 					if (dataH.fin_insert_id != $userActive){
 						$('#fdtOpnameStartDate').prop('disabled', true);

@@ -88,6 +88,94 @@ class Trbpkbopname_model extends MY_Model
 
     }
 
+    public function isnotClosed($fstOpnameNo)
+    {
+
+        $ssql = "SELECT * FROM " . $this->tableName . " WHERE fstOpnameNo = ? AND fdtOpnameEndDate IS NULL";
+        $qr = $this->db->query($ssql, [$fstOpnameNo]);
+        //echo $this->db->last_query();
+        //die();
+        $notClosed = $qr->row();
+
+        $data = [
+            "notClosed" => $notClosed
+        ];
+        return $data;
+    }
+
+    public function processOpname($fstOpnameNo){
+        $user = $this->aauth->user();
+        $activeUser = $user->fstUserCode;
+        //$closeDate = date ("Y-m-d H:i:s");
+        $ssql = "SELECT * FROM " . $this->tableName . " WHERE fstOpnameNo = ? AND fin_insert_id = ?";
+        $qr = $this->db->query($ssql, [$fstOpnameNo,$activeUser]);
+        //echo $this->db->last_query();
+        //die();
+        $rwHeader = $qr->row();
+        if($rwHeader == null){
+            throw new CustomException(lang("Not Allowed to process Opname No : $fstOpnameNo !"),3003,"FAILED",[]);
+        }else{
+            $ssql = "SELECT * FROM trbpkbopnamedetails WHERE fstOpnameNo = ? AND fblIsSystemInserted = 0";
+            $qr = $this->db->query($ssql, [$fstOpnameNo]);
+            //echo $this->db->last_query();
+            //die();
+            $rwdetails = $qr->result();
+        }
+        foreach($rwdetails as $detail){
+            $ssql ="SELECT * FROM trbpkb WHERE fstBpkbNo = ?";
+            $qr = $this->db->query($ssql,[$detail->fstBpkbNo]);
+            $bpkb = $qr->row();
+
+            $ssql = "SELECT IFNULL(sum(fdbIn - fdbOut),0) as fdbSisa FROM trbpkblogs where fstBpkbNo = ? AND finWarehouseId= ? AND fst_active ='A'";
+            $qr = $this->db->query($ssql, [$detail->fstBpkbNo,$rwHeader->finWarehouseId]);
+            //echo $this->db->last_query();
+            //die();
+            $rwStock = $qr->row();
+
+
+            $ssql = "SELECT IFNULL(sum(fdbIn - fdbOut),0) as fdbSisa FROM trbpkblogs where fstBpkbNo = ? AND fst_active ='A'";
+            $qr = $this->db->query($ssql, [$detail->fstBpkbNo]);
+            //echo $this->db->last_query();
+            //die();
+            $rwReady = $qr->row();
+
+            if ($bpkb && $rwStock->fdbSisa == '1'){
+                $ssql = "UPDATE trbpkbopnamedetails SET fstBpkbOpnameStatus = 'OK' WHERE fstOpnameNo = ? AND fstBpkbNo = ?";
+                $qr = $this->db->query($ssql,[$fstOpnameNo,$detail->fstBpkbNo]);
+            }else if (!$bpkb){
+                $ssql = "UPDATE trbpkbopnamedetails SET fstBpkbOpnameStatus = 'DATA_NOTFOUND' WHERE fstOpnameNo = ? AND fstBpkbNo = ?";
+                $qr = $this->db->query($ssql,[$fstOpnameNo,$detail->fstBpkbNo]);
+            }else if ($bpkb && $rwStock->fdbSisa == '0' && $rwReady->fdbSisa > '0' && $rwReady->fdbSisa < '2'){
+                $ssql = "UPDATE trbpkbopnamedetails SET fstBpkbOpnameStatus = 'WRONG_WAREHOUSE' WHERE fstOpnameNo = ? AND fstBpkbNo = ?";
+                $qr = $this->db->query($ssql,[$fstOpnameNo,$detail->fstBpkbNo]);
+            }else if ($bpkb && $rwStock->fdbSisa == '1' && ($bpkb->fstBpkbStatus !='CHECKIN' || $bpkb->fstBpkbStatus !='OB_CHECKIN')){
+                $ssql = "UPDATE trbpkbopnamedetails SET fstBpkbOpnameStatus = 'WRONG_STATUS' WHERE fstOpnameNo = ? AND fstBpkbNo = ?";
+                $qr = $this->db->query($ssql,[$fstOpnameNo,$detail->fstBpkbNo]);
+            }
+        }
+        // MASIH KURANG INSERT ke trbpkbopnamedetails fblIsSystemInserted = 1 
+
+
+    }
+
+    public function statusHeader($fstOpnameNo){
+        $ssql = "SELECT * FROM trbpkbopnamedetails WHERE fstOpnameNo = ?";
+        $qr = $this->db->query($ssql, [$fstOpnameNo]);
+        $rw = $qr->result();
+        if (!$rw ){
+            throw new CustomException(lang("Detail Opname No : $fstOpnameNo Not Found!"),3003,"FAILED",[]);
+        }else{
+            $ssql = "SELECT * FROM trbpkbopnamedetails WHERE fstOpnameNo = ? AND fstBpkbOpnameStatus != 'OK'";
+            $qr = $this->db->query($ssql, [$fstOpnameNo]);
+            $rwdetails = $qr->result();
+            $data = [
+                "opnameDetail" => $rwdetails
+            ];
+            return $data;
+        }
+
+    }
+
 
     public function getRules($mode = "ADD")
     {

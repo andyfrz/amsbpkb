@@ -38,18 +38,34 @@ class Trbpkbcheckin_model extends MY_MODEL {
         return $data;
     }
 
+    public function getCheckin($finId)
+    {
+        $ssql = "SELECT * FROM " . $this->tableName . " WHERE finId = ? AND fstBpkbStatus ='CHECKIN'";
+        $qr = $this->db->query($ssql, [$finId]);
+        //echo $this->db->last_query();
+        //ie();
+        $rwBpkbCheckin = $qr->row();
+
+        $data = [
+            "bpkbcheckin" => $rwBpkbCheckin
+        ];
+        return $data;
+    }
+
     public function getRules($mode = "ADD", $finTrxId = 0)
     {
         $rules = [];
 
-        $rules[] = [
-            'field' => 'finSalesTrxId',
-            'label' => 'Trx Id',
-            'rules' => 'required',
-            'errors' => array(
-                'required' => '%s tidak boleh kosong'
-            )
-        ];
+        if ($mode == "ADD"){
+            $rules[] = [
+                'field' => 'finSalesTrxId',
+                'label' => 'Trx Id',
+                'rules' => 'required',
+                'errors' => array(
+                    'required' => '%s tidak boleh kosong'
+                )
+            ];
+        }
 
 
         $rules[] = [
@@ -70,7 +86,7 @@ class Trbpkbcheckin_model extends MY_MODEL {
             )
         ];
 
-        //if($mode == "ADD"){
+        if($mode == "ADD"){
             $rules[] = [
                 'field' => 'fstBpkbNo',
                 'label' => 'BPKB No',
@@ -80,7 +96,7 @@ class Trbpkbcheckin_model extends MY_MODEL {
                 )
             ];
     
-        //}
+        }
 
 
         return $rules;
@@ -95,4 +111,24 @@ class Trbpkbcheckin_model extends MY_MODEL {
         $ssql = "delete from " . $this->tableName . " where finId = ?";
         $this->db->query($ssql,[$finId]);
     }
+
+    public function updateLogBpkb($finId){
+
+        $fstBpkbNo = $this->input->post("fstBpkbNo");
+        $fstTrxInfo = $this->input->post("fstInfo");
+        $fdtTrxDate = date("Y-m-d H:i:s");
+
+		$ssql ="SELECT * FROM " . $this->tableName . " WHERE finId = ?";
+		$qr = $this->db->query($ssql,[$finId]);
+        //echo $this->db->last_query();
+        //die();
+		$dataBpkb = $qr->row();
+		if ($dataBpkb == null){
+			throw new CustomException(lang("invalid ID BPKB"),404,"FAILED",[]);	
+		}
+
+        $ssql = "UPDATE trbpkblogs SET fstBpkbNo ='$fstBpkbNo',fstTrxInfo='$fstTrxInfo',fdtTrxDate='$fdtTrxDate' WHERE finTrxId = ? AND fstTrxSource ='CHECKIN'";
+        $this->db->query($ssql,[$dataBpkb->finSalesTrxId]);
+
+	}
 }

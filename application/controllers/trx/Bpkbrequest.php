@@ -234,11 +234,17 @@ class Bpkbrequest extends MY_Controller
 		$request = $data["request"];
 		if (!$request) {
 			$this->ajxResp["status"] = "DATA_NOT_FOUND";
-			$this->ajxResp["message"] = "Data id $fstReqNo Not Found ";
+			$this->ajxResp["message"] = "Request No. $fstReqNo Not Found !";
 			$this->ajxResp["data"] = [];
 			$this->json_output();
 			return;
-		}
+		}else if ($request->fstTrxPICApprovedBy != "" || $request->fstTrxPICApprovedBy != null){
+            $this->ajxResp["status"] = "APPROVED";
+			$this->ajxResp["message"] = "Request No. $fstReqNo already aprroved !";
+			$this->ajxResp["data"] = [];
+			$this->json_output();
+			return;
+        }
 
 		$this->form_validation->set_rules($this->trbpkbrequest_model->getRules("EDIT", $fstReqNo));
 		$this->form_validation->set_error_delimiters('<div class="text-danger">* ', '</div>');
