@@ -22,6 +22,19 @@ class Msdealers_model extends MY_Model
         return $data;
     }
 
+    public function isExist($fstDealerCode){
+        $ssql = "select * from " . $this->tableName . " where fstDealerCode = ?";
+        $qr = $this->db->query($ssql, [$fstDealerCode]);
+        $rwDealer = $qr->row();
+
+		if ($rwDealer == null){            
+			return false;
+		}else{
+			return true;
+		}
+
+	}
+
 
     public function getRules($mode = "ADD", $id = "")
     {

@@ -30,7 +30,41 @@ class salestrx extends MY_Controller
 		];
 		
 		$this->list['columns']=[];
-        $this->list["refreshToken"] = $this->session->userdata("refresh_token");
+		$this->list['dataInfo'] = [];
+		$this->list['keterangan']='template/dataInfo';
+        //$this->list["refreshToken"] = $this->session->userdata("refresh_token");
+        $main_header = $this->parser->parse('inc/main_header',[],true);
+        $main_sidebar = $this->parser->parse('inc/main_sidebar',[],true);
+        $page_content = $this->parser->parse('pages/tr/salestrx/form',$this->list,true);
+        $main_footer = $this->parser->parse('inc/main_footer',[],true);
+        $control_sidebar = "";
+        $control_sidebar = null;
+        $this->data['ACCESS_RIGHT']="A-C-R-U-D-P";
+        $this->data['MAIN_HEADER'] = $main_header;
+        $this->data['MAIN_SIDEBAR']= $main_sidebar;
+        $this->data['PAGE_CONTENT']= $page_content;
+        $this->data['MAIN_FOOTER']= $main_footer;        
+        $this->parser->parse('template/main',$this->data);
+	}
+
+	public function result_import($fetchData)
+	{
+		parent::index();
+		$this->load->library('menus');
+        $this->list['page_name']="Delete Tiket";
+        $this->list['pKey']="id";
+        $this->list['arrSearch']=[];
+		
+		$this->list['breadcrumbs']=[
+			['title'=>'Home','link'=>'#','icon'=>"<i class='fa fa-dashboard'></i>"],
+			['title'=>'Transaction','link'=>'#','icon'=>''],
+			['title'=>'Salestrx','link'=> NULL ,'icon'=>''],
+		];
+		
+		$this->list['columns']=[];
+		$this->list['dataInfo'] = $fetchData;
+		$this->list['keterangan']='template/dataInfo';
+        //$this->list["refreshToken"] = $this->session->userdata("refresh_token");
         $main_header = $this->parser->parse('inc/main_header',[],true);
         $main_sidebar = $this->parser->parse('inc/main_sidebar',[],true);
         $page_content = $this->parser->parse('pages/tr/salestrx/form',$this->list,true);
@@ -468,9 +502,53 @@ class salestrx extends MY_Controller
 						
                         $fetchData[] = array('NO' => $no, 'DEALER' => $dealer, 'REGIST' => $regist, 'DATE' => $date, 'CUSTOMER' => $customer,'info' => $info);
                     }
-					$this->vars['type']="alert-success";
-					$this->vars['message']="Import Finish";
-                    $this->vars['dataInfo'] = $fetchData;
+					//$this->vars['type']="alert-success";
+					//$this->vars['message']="Import Finish";
+					$this->ajxResp["status"] = "SUCCESS";
+					$this->ajxResp["message"] = "Import Finish !";
+					$this->ajxResp["data"] = $fetchData;
+					$this->json_output();
+					$this->list['dataInfo'] = $fetchData;
+					//return $this->load->view('template/mdlImportSales',$this->list);
+					//redirect('trx/salestrx/result_import',$fetchData);
+
+					echo("<div class='modal fade in'>
+					<div class='modal-dialog'>
+					<div class='modal-content'>
+						<div class='modal-header'>
+						<button type='button' class='close' data-dismiss='modal' aria-label='Close'>
+							<span aria-hidden='true'>&times;</span></button>
+						</div>
+						<div class='modal-body'>");
+						if (isset($fetchData)) {
+			
+							echo("<table class='table'>
+							<thead class='bg-gray'>
+								<tr>
+									<th>REGIST</th>
+									<th>CUSTOMER</th>
+									<th>KETERANGAN</th>
+								</tr>
+							</thead>
+							<tbody>");
+								foreach ($fetchData as $data) {
+									echo("<tr>
+										<td>".$data['REGIST']."</td>
+										<td>".$data['CUSTOMER']."</td>
+										<td>".$data['info']."</td>
+									</tr>");
+								}
+								echo("</tbody>
+						</table>");
+						}
+					echo("</div>
+								<div class='modal-footer'>
+									<button type='button' class='btn btn-default' data-dismiss='modal'>Tutup</button>
+									<button type='submit' class='btn btn-primary'>Import</button>
+								</div>
+							</div>
+							</div>
+						</div>");		
                 } else {
 					$this->vars['type']="alert-danger";
 					$this->vars['message']="Please import correct file, did not match excel sheet column";					

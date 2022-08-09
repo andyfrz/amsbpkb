@@ -62,12 +62,12 @@ defined('BASEPATH') or exit('No direct script access allowed');
                         <input type="hidden" id="frm-mode" value="<?= $mode ?>">
 
                         <div class='form-group'>
-                            <label for="fstReqNo" class="col-sm-2 control-label"><?= lang("Request No") ?> *</label>
+                            <label for="fstReqNo" class="col-sm-2 control-label"><?= lang("Request No") ?></label>
                             <div class="col-sm-4">
                                 <input type="TEXT" id="fstReqNo" name="fstReqNo" class="form-control"  value="<?=$fstReqNo?>" placeholder="PREFIX/YEARMONTH/99999" readonly /> 
                                 <div id="fstReqNo_err" class="text-danger"></div>
                             </div>
-                            <label for="fdtReqDate" class="col-md-2 control-label"><?= lang("BPKB Date") ?></label>
+                            <label for="fdtReqDate" class="col-md-2 control-label"><?= lang("Request Date") ?></label>
                             <div class="col-sm-4">
                                 <div class="input-group date">
                                     <div class="input-group-addon">
@@ -99,7 +99,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
                                 </select>
                                 <div id="fstDealerCode_err" class="text-danger"></div>
                             </div>
-                            <label for="hfinTrxId" class="col-md-2 control-label"><?= lang("BPKB Trx") ?></label>
+                            <label for="hfinTrxId" class="col-md-2 control-label"><?= lang("BPKB Source") ?></label>
                             <div class="col-md-4">
                                 <select class="form-control" id="hfinTrxId" name="hfinTrxId">
                                     <?php
@@ -113,7 +113,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="finTransferType" class="col-md-2 control-label"><?=lang("Type")?> *</label>
+                            <label for="finTransferType" class="col-md-2 control-label"><?=lang("Type")?></label>
                             <div class="col-md-4">
                                 <select class="form-control" id="finTransferType" name="finTransferType">
                                     <option value='2'><?=lang("Request Checkout")?></option>

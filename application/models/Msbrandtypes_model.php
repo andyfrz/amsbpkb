@@ -21,6 +21,19 @@ class Msbrandtypes_model extends MY_Model
         return $data;
     }
 
+    public function isExist($finBrandTypeId){
+        $ssql = "select * from " . $this->tableName . " where finBrandTypeId = ?";
+        $qr = $this->db->query($ssql, [$finBrandTypeId]);
+        $rwBrandtype = $qr->row();
+
+		if ($rwBrandtype == null){            
+			return false;
+		}else{
+			return true;
+		}
+
+	}
+
 
     public function getRules($mode = "ADD", $finBrandTypeId = 0)
     {

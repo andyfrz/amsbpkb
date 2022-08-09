@@ -21,31 +21,14 @@ defined('BASEPATH') or exit('No direct script access allowed');
 		<!-- /.box-header -->
         <form id="frmDownloadMaster" class="form-horizontal" action="<?= site_url() ?>master/downloadmaster/download_api" method="POST" enctype="multipart/form-data">
             <div class="box-body">
+            <input type="hidden" name = "<?=$this->security->get_csrf_token_name()?>" value="<?=$this->security->get_csrf_hash()?>">
                 <div class="form-group row">
-                    <div class="col-sm-12">								
+                    <div class="col-sm-12">
                         <div class="radio">
-                        <label>
-                            <input type="radio" name="opsi_master" id="download_dealer" value="1" checked="">
-                            Dealers
-                        </label>
-                        </div>
-                        <div class="radio">
-                        <label>
-                            <input type="radio" name="opsi_master" id="download_colour" value="2">
-                            Colours
-                        </label>
-                        </div>
-                        <div class="radio">
-                        <label>
-                            <input type="radio" name="opsi_master" id="download_brand" value="3">
-                            Brands
-                        </label>
-                        </div>
-                        <div class="radio">
-                        <label>
-                            <input type="radio" name="opsi_master" id="download_brandtype" value="4">
-                            Brand Types
-                        </label>
+                            <label class="radio"><input type="radio" id="download_dealer" class="rpt_layout" name="opsi_master" value="1" checked onclick="handleRadioClick(this);"><?=lang("Dealers")?></label>
+                            <label class="radio"><input type="radio" id="download_colour" class="rpt_layout" name="opsi_master" value="2" onclick="handleRadioClick(this);"><?=lang("Colours")?></label>
+                            <label class="radio"><input type="radio" id="download_brand" class="rpt_layout" name="opsi_master" value="3" onclick="handleRadioClick(this);"><?=lang("Brands")?></label>
+                            <label class="radio"><input type="radio" id="download_brandtype" class="rpt_layout" name="opsi_master" value="4" onclick="handleRadioClick(this);"><?=lang("Brand Types")?></label>								
                         </div>
                     </div>
                 </div>
@@ -59,6 +42,16 @@ defined('BASEPATH') or exit('No direct script access allowed');
 	<!-- /.col -->
 </div>
 </section>
+<script type="text/javascript" info="init">
+
+    function handleRadioClick(myRadio) {
+        if (myRadio.value == "1"){
+
+        }else{
+
+        }
+    }
+</script>
 
 <script type="text/javascript">
     $(function() {
@@ -67,7 +60,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
             [SECURITY_NAME]:SECURITY_VALUE,
             "opsimaster": $('input[name=opsi_master]:checked').val(),
         };
-        var opsi_master = $('input[name=opsi_master]:checked').val();
+        //var opsi_master = $('input[name=opsi_master]:checked').val();
         $("#btnDownload").click(function(event){
             event.preventDefault();
             insertData(master);
@@ -76,6 +69,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
         function insertData(master){
             var dataSubmit = $("#frmDownloadMaster").serializeArray();
             var detail = new Array();
+            var opsi_master = $('input[name=opsi_master]:checked').val();
             opsimaster = master;
             $.each(opsimaster,function(i,v){
                 detail.push(v);
@@ -86,12 +80,14 @@ defined('BASEPATH') or exit('No direct script access allowed');
                 value: JSON.stringify(detail)
             });
 
-            alert(opsi_master);
-
             if (opsi_master == 1){
                 url =  "<?= site_url() ?>master/downloadmaster/download_dealers/";
             }else if (opsi_master == 2){
                 url =  "<?= site_url() ?>master/downloadmaster/download_colours/";
+            }else if (opsi_master == 3){
+                url =  "<?= site_url() ?>master/downloadmaster/download_brands/";
+            }else if (opsi_master == 4){
+                url =  "<?= site_url() ?>master/downloadmaster/download_brandtypes/"; 
             }
 
 		    App.blockUIOnAjaxRequest("<?=lang("Please wait while saving data.....")?>");
@@ -110,8 +106,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
                                 OK : function(){
                                     if(resp.status == "SUCCESS"){
                                         //$("#btnNew").trigger("click");
-                                        //return;
-                                        alert("Success !!!")
+                                        return;
                                     }
                                 },
                             }

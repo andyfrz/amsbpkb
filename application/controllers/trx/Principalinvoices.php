@@ -243,6 +243,7 @@ class Principalinvoices extends MY_Controller
 				LEFT JOIN tbbrandtypes c ON b.finBrandTypeId = c.finBrandTypeId
 				LEFT JOIN tbcolours d ON b.fstColourCode = d.fstColourCode
 				WHERE b.fstDealerCode ='$activeDealer'
+				GROUP BY a.finId
 				ORDER BY fdtCheckinDate DESC
 			) a");
 		}else{
@@ -252,6 +253,7 @@ class Principalinvoices extends MY_Controller
 				LEFT JOIN trsalestrx b ON a.finSalesTrxId = b.finSalesTrxId
 				LEFT JOIN tbbrandtypes c ON b.finBrandTypeId = c.finBrandTypeId
 				LEFT JOIN tbcolours d ON b.fstColourCode = d.fstColourCode
+				GROUP BY a.finId
 				ORDER BY fdtCheckinDate DESC
 			) a");
 		}

@@ -2,7 +2,7 @@
 defined('BASEPATH') or exit('No direct script access allowed');
 ?>
 <script src="<?=base_url()?>bower_components/jquery/jquery.md5.js"></script>
-<style type="text/css">
+<!--<style type="text/css">
 	.border-0{
 		border: 0px;
 	}
@@ -25,7 +25,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
 	.checkbox label, .radio label {
 		font-weight:700;
 	}
-</style>
+</style>-->
 
 <section class="content-header">
     <h1><?= lang("Sales TRX") ?><small><?= lang("") ?></small></h1>
@@ -47,22 +47,12 @@ defined('BASEPATH') or exit('No direct script access allowed');
         <form id="frmDownload" class="form-horizontal" action="<?= site_url() ?>trx/salestrx/download_api" method="POST" enctype="multipart/form-data">
             <div class="box-body">
             <input type="hidden" name = "<?=$this->security->get_csrf_token_name()?>" value="<?=$this->security->get_csrf_hash()?>">
-                <div class="form-group">
+                <div class="form-group row">
                     <div class="col-sm-12">
-                    <label class="radio"><input type="radio" id="import_excel" class="rpt_layout" name="rpt_layout" value="1" checked onclick="handleRadioClick(this);"><?=lang("Import sales data (Excel)")?></label>
-                    <label class="radio"><input type="radio" id="import_api" class="rpt_layout" name="rpt_layout" value="2" onclick="handleRadioClick(this);"><?=lang("Import sales data (API)")?></label>								
-                        <!--<div class="radio">
-                        <label>
-                            <input type="radio" name="opsi_download" id="import_excel" value="1" checked="">
-                            Import sales data (Excel)
-                        </label>
-                        </div>
                         <div class="radio">
-                        <label>
-                            <input type="radio" name="opsi_download" id="import_api" value="2">
-                            Import sales data (API)
-                        </label>
-                        </div>-->
+                            <label class="radio"><input type="radio" id="import_excel" class="rpt_layout" name="rpt_layout" value="1" checked onclick="handleRadioClick(this);"><?=lang("Download sales data (Excel)")?></label>
+                            <label class="radio"><input type="radio" id="import_api" class="rpt_layout" name="rpt_layout" value="2" onclick="handleRadioClick(this);"><?=lang("Download sales data (API)")?></label>								
+                        </div>
                     </div>
                 </div>
                 <div id="salesdate" class="form-group row" style="display:none">
@@ -93,6 +83,9 @@ defined('BASEPATH') or exit('No direct script access allowed');
                 <button type="button"  id="btnLOG" href="#" title="<?=lang("Download")?>" class="btn btn-primary btn-block" hidden ><i class="fa fa-cloud-download" aria-hidden="true"></i></button>
             </div>
             <!-- /.box-body -->
+            <div class="box-footer">
+                <?php $this->load->view($keterangan); ?>
+            </div>
         </form>
 	  </div>
 	  <!-- /.box -->
@@ -110,19 +103,16 @@ defined('BASEPATH') or exit('No direct script access allowed');
 		  <span aria-hidden="true">&times;</span></button>
 	  </div>
 	  <div class="modal-body">
-			
 			<div class="form-group">
 				<label for="exampleInputFile">Import</label>
 				<input type="file" id="exampleInputFile" name="file" required>
-
 				<p class="margin">Format File .xls | .xlsx | maks size. 10 Mb</p>
 			</div>
-			
 	  </div>
 		<div class="modal-footer">
 			<button type="button" class="btn btn-default" data-dismiss="modal">Tutup</button>
 			<button type="submit" class="btn btn-primary">Import</button>
-		</div>	 
+		</div>
 		<?php echo form_close(); ?>
 	</div>
 	<!-- /.modal-content -->
@@ -152,9 +142,6 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 <script type="text/javascript">
     $(function() {
-
-        var refreshToken = "<?= $refreshToken ?>";
-        var $token = $.md5('221106T1853');
         
         var data = {
             [SECURITY_NAME]:SECURITY_VALUE,
@@ -285,8 +272,8 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
         $("#btnImport").click(function(event) {
             event.preventDefault();
-            //$("#modal-import").modal('show');
-            $.ajax({
+            $("#modal-import").modal('show');
+            /*$.ajax({
                 type: 'POST',
                 dataType: 'json',
                 contentType: 'application/json; charset=utf-8',
@@ -303,7 +290,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
                     token = resp.RefreshToken;
                     //window.location.replace("<?=site_url()?>master/user/update_token/" + token);
                 }
-            });
+            });*/
         });
 
 

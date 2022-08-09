@@ -232,7 +232,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
     <script type="text/javascript">
         var action = '<a class="btn-edit" href="#" data-toggle="" data-original-title="" title=""><i class="fa fa-pencil"></i></a>&nbsp; <a class="btn-delete" href="#" data-toggle="confirmation" data-original-title="" title=""><i class="fa fa-trash"></i></a>';
-
+		$('#mdlBpkb').on('shown.bs.modal', function () {
+			$('#dfstBpkbNo').focus();
+		})
         var mdlBpkb = {
 			selectedDetail:null,
 			show:function(){
@@ -241,7 +243,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     console.log(data);
                     if (typeof(data) == "undefined"){
                         $("#mdlBpkb").modal("show");
-                        selectedDetail = null;					
+                        selectedDetail = null;				
                         return;
                     }
                     $('#dfstBpkbNo').prop('readonly', true);

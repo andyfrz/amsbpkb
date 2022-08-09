@@ -21,6 +21,19 @@ class Msbrands_model extends MY_Model
         return $data;
     }
 
+    public function isExist($fstBrandCode){
+        $ssql = "select * from " . $this->tableName . " where fstBrandCode = ?";
+        $qr = $this->db->query($ssql, [$fstBrandCode]);
+        $rwBrand = $qr->row();
+
+		if ($rwBrand == null){            
+			return false;
+		}else{
+			return true;
+		}
+
+	}
+
     
     public function getBranchById($fstBrandCode){
         $ssql = "select * from " . $this->tableName . " where fstBrandCode = ?";

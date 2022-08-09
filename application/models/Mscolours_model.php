@@ -21,6 +21,19 @@ class Mscolours_model extends MY_Model
         return $data;
     }
 
+    public function isExist($fstColourCode){
+        $ssql = "select * from " . $this->tableName . " where fstColourCode = ?";
+        $qr = $this->db->query($ssql, [$fstColourCode]);
+        $rwColour = $qr->row();
+
+		if ($rwColour == null){            
+			return false;
+		}else{
+			return true;
+		}
+
+	}
+
 
 
     public function getRules($mode = "ADD", $id = "")
